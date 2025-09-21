@@ -2,8 +2,7 @@ import React, { useState } from "react";
 import { Box, Card, CardContent, Typography, Grid, Button } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
-import BackspaceIcon from "@mui/icons-material/Backspace";
-import ClearIcon from "@mui/icons-material/Clear";
+import NumericKeypad from "./NumericKeypad"; // Import du pavé numérique
 
 function generateExercise() {
   const a = Math.floor(Math.random() * 9) + 1;
@@ -43,60 +42,21 @@ export default function AdditionExercises() {
     setValidated(null);
   };
 
-  const keypad = [
-    [1, 2, 3],
-    [4, 5, 6],
-    [7, 8, 9],
-    ["clear", 0, "back"],
-  ];
-
   return (
     <Box sx={{ display: "flex", justifyContent: "center", mt: 5 }}>
       <Card sx={{ p: 3, minWidth: 320, textAlign: "center" }}>
         <CardContent>
           <Typography variant="h4" gutterBottom>
-            {exercise.a} + {exercise.b} = {input || " "}
+            {exercise.a} + {exercise.b} = {input || "?"}
           </Typography>
 
-          {/* Pavé numérique multiligne */}
-          <Box mb={2}>
-            {keypad.map((row, rowIndex) => (
-              <Grid container spacing={1} justifyContent="center" key={rowIndex} sx={{ mb: 1 }}>
-                {row.map((key) => (
-                  <Grid item key={String(key)}>
-                    {key === "back" ? (
-                      <Button
-                        onClick={handleBackspace}
-                        variant="outlined"
-                        sx={{ minWidth: 64, height: 48 }}
-                        disabled={validated !== null || input === ""}
-                      >
-                        <BackspaceIcon />
-                      </Button>
-                    ) : key === "clear" ? (
-                      <Button
-                        onClick={handleClear}
-                        variant="outlined"
-                        sx={{ minWidth: 64, height: 48 }}
-                        disabled={validated !== null || input === ""}
-                      >
-                        <ClearIcon />
-                      </Button>
-                    ) : (
-                      <Button
-                        onClick={() => handleNumberClick(key)}
-                        variant="outlined"
-                        sx={{ minWidth: 64, height: 48 }}
-                        disabled={validated !== null}
-                      >
-                        {key}
-                      </Button>
-                    )}
-                  </Grid>
-                ))}
-              </Grid>
-            ))}
-          </Box>
+          {/* Pavé numérique réutilisable */}
+          <NumericKeypad
+            onNumberClick={handleNumberClick}
+            onBackspace={handleBackspace}
+            onClear={handleClear}
+            disabled={validated !== null}
+          />
 
           <Grid container spacing={2} justifyContent="center" alignItems="center">
             <Grid item>
