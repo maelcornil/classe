@@ -2,44 +2,55 @@ import React, { useState, useEffect } from "react";
 import { Box, Card, CardContent, Typography, Grid, Button } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
-import NumericKeypad from "./NumericKeypad"; // Composant réutilisable
+import NumericKeypad from "./NumericKeypad";
 
-// Fonction pour générer un nombre aléatoire avec N chiffres
-function randomNumberWithDigits(digits) {
-  if (digits < 1) digits = 1;
-  const min = 10 ** (digits - 1);
-  const max = 10 ** digits - 1;
+// Génération d'un nombre aléatoire avec au maximum N chiffres
+function randomNumberMaxDigits(maxDigits) {
+  if (!maxDigits || maxDigits < 1) maxDigits = 1;
+  const min = 1;
+  const max = 10 ** maxDigits - 1;
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-// Génération d'un exercice
-function generateExercise(digits) {
-  const a = randomNumberWithDigits(digits);
-  const b = randomNumberWithDigits(digits);
-  return { a, b, answer: a + b };
+// Génération d'un exercice respectant maxd1, maxd2 et maxres
+function generateExercise(maxd1, maxd2, maxres) {
+  let a, b, sum;
+  do {
+    a = randomNumberMaxDigits(maxd1);
+    b = randomNumberMaxDigits(maxd2);
+    sum = a + b;
+  } while (sum.toString().length > maxres);
+  return { a, b, answer: sum };
 }
 
 export default function AdditionExercises() {
-  const [digits, setDigits] = useState(1); // Nombre de chiffres par défaut
-  const [exercise, setExercise] = useState(generateExercise(digits));
+  const [exercise, setExercise] = useState({ a: 1, b: 1, answer: 2 });
   const [input, setInput] = useState("");
-  const [validated, setValidated] = useState(null);
+  const [validated, setValidated] = useState<null | boolean>(null);
+  const [params, setParams] = useState({ maxd1: 1, maxd2: 1, maxres: 2 });
 
   // Lecture des paramètres d'URL
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const d = parseInt(params.get("digits"), 10);
-    if (!isNaN(d) && d > 0) setDigits(d);
+    const searchParams = new URLSearchParams(window.location.search);
+    const maxd1 = parseInt(searchParams.get("maxd1") || "1", 10);
+    const maxd2 = parseInt(searchParams.get("maxd2") || "1", 10);
+    const maxres = parseInt(searchParams.get("maxres") || "2", 10);
+    setParams({ maxd1, maxd2, maxres });
   }, []);
 
-  // Régénère un exercice quand digits change
-  useEffect(() => {
-    setExercise(generateExercise(digits));
+  // Génère un exercice quand les params changent ou après chaque exercice
+  const newExercise = () => {
+    const ex = generateExercise(params.maxd1, params.maxd2, params.maxres);
+    setExercise(ex);
     setInput("");
     setValidated(null);
-  }, [digits]);
+  };
 
-  const handleNumberClick = (num) => {
+  useEffect(() => {
+    newExercise();
+  }, [params]);
+
+  const handleNumberClick = (num: number) => {
     if (validated !== null) return;
     setInput((prev) => prev + num.toString());
   };
@@ -56,14 +67,7 @@ export default function AdditionExercises() {
 
   const checkAnswer = () => {
     if (input === "") return;
-    const isCorrect = parseInt(input, 10) === exercise.answer;
-    setValidated(isCorrect);
-  };
-
-  const nextExercise = () => {
-    setExercise(generateExercise(digits));
-    setInput("");
-    setValidated(null);
+    setValidated(parseInt(input, 10) === exercise.answer);
   };
 
   return (
@@ -74,7 +78,6 @@ export default function AdditionExercises() {
             {exercise.a} + {exercise.b} = {input || " "}
           </Typography>
 
-          {/* Pavé numérique réutilisable */}
           <NumericKeypad
             onNumberClick={handleNumberClick}
             onBackspace={handleBackspace}
@@ -100,7 +103,7 @@ export default function AdditionExercises() {
 
           {validated !== null && (
             <Box mt={3}>
-              <Button variant="outlined" onClick={nextExercise}>
+              <Button variant="outlined" onClick={newExercise}>
                 Exercice suivant
               </Button>
             </Box>

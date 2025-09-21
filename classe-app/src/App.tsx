@@ -1,14 +1,14 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import IndexPage from "./IndexPage";
-import AdditionExercises from "./AdditionExercises";
+import Exercises from "./Exercises";
 
 export default function App() {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<IndexPage />} />
-        <Route path="/addition" element={<AdditionExercises />} />
+        <Route path="/exercice" element={<Exercises />} />
       </Routes>
     </Router>
   );
