@@ -48,7 +48,7 @@ export default function Exercises(): JSX.Element {
   const [currentSeries, setCurrentSeries] = useState(0);
   const [results, setResults] = useState<ExerciseResult[]>([]);
   const [started, setStarted] = useState(false);
-  const [time, setTime] = useState(0); // temps écoulé en secondes
+  const [time, setTime] = useState(0);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -71,11 +71,8 @@ export default function Exercises(): JSX.Element {
     setValidated(null);
     setInput("");
     setTime(0);
-    // Démarrer le chrono
     if (timerRef.current) clearInterval(timerRef.current);
-    timerRef.current = setInterval(() => {
-      setTime(prev => prev + 1);
-    }, 1000);
+    timerRef.current = setInterval(() => setTime(prev => prev + 1), 1000);
   };
 
   const stopTimer = () => {
@@ -87,8 +84,6 @@ export default function Exercises(): JSX.Element {
 
   const newExercise = () => {
     if (!exercise) return;
-
-    // mémoriser exercice actuel
     if (validated !== null) {
       setResults(prev => [
         ...prev,
@@ -102,7 +97,7 @@ export default function Exercises(): JSX.Element {
 
     if (currentSeries === params.series) {
       stopTimer();
-      setCurrentSeries(prev => prev + 1); // permet d'afficher sérieFinished
+      setCurrentSeries(prev => prev + 1);
       return;
     }
 
@@ -120,13 +115,22 @@ export default function Exercises(): JSX.Element {
   const checkAnswer = () => {
     if (input === "" || !exercise) return;
     const userVal = parseInt(input, 10);
-    const isCorrect = userVal === exercise.answer;
-    setValidated(isCorrect);
+    setValidated(userVal === exercise.answer);
   };
 
-  const restartExercise = () => {
+  const restartExercise = () => setInput("");
+
+  const restartSeries = () => {
+    // réinitialiser complètement la série
+    setCurrentSeries(1);
+    setResults([]);
+    setExercise(generateExercise(params.maxd1, params.maxd2, params.maxres));
     setInput("");
     setValidated(null);
+    setTime(0);
+    setStarted(true);
+    if (timerRef.current) clearInterval(timerRef.current);
+    timerRef.current = setInterval(() => setTime(prev => prev + 1), 1000);
   };
 
   const correctCount = results.filter(r => r.correct).length;
@@ -168,7 +172,7 @@ export default function Exercises(): JSX.Element {
                 )}
                 {validated !== null && (
                   <Grid item>
-                    {validated === true && <CheckCircleIcon color="success" fontSize="large" />}
+                    {validated && <CheckCircleIcon color="success" fontSize="large" />}
                     {validated === false && <CancelIcon color="error" fontSize="large" />}
                   </Grid>
                 )}
@@ -236,6 +240,12 @@ export default function Exercises(): JSX.Element {
                     {res.correct ? <CheckCircleIcon color="success" /> : <CancelIcon color="error" />}
                   </Box>
                 ))}
+              </Box>
+
+              <Box mt={3}>
+                <Button variant="contained" onClick={restartSeries}>
+                  Recommencer
+                </Button>
               </Box>
             </>
           )}
