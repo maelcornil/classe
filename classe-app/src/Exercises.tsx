@@ -157,7 +157,7 @@ console.log({
 
     // Si c’est le dernier exercice, arrêter le chrono
     if (currentSeries === params.series) {
-      if(isCorrect) stopTimer();
+      if(isCorrect || params.mode === 0) stopTimer();
     }
   };
 
