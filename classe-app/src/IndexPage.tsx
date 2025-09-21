@@ -34,9 +34,17 @@ export default function IndexPage(): JSX.Element {
   };
 
   return (
-    <Box sx={{ display: "flex", justifyContent: "center", mt: 10 }}>
-      <Card sx={{ p: 3, minWidth: 350, textAlign: "center" }}>
-        <CardContent>
+<Box
+  sx={{
+    display: "flex",
+    justifyContent: "center", // centre horizontalement
+    alignItems: "center",     // centre verticalement
+    width: "100vw",           // prend toute la largeur
+    height: "100vh",          // prend toute la hauteur
+  }}
+>
+  <Card sx={{ p: 3, minWidth: 360, textAlign: "center" }}>
+    <CardContent>
           <Typography variant="h4" gutterBottom>
             Paramètres de l'exercice
           </Typography>

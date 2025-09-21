@@ -199,10 +199,18 @@ console.log({
   const correctCount = results.filter(r => r.correct).length;
   const firstTryCount = results.filter(r => r.correct && r.attempts === 1).length;
 
-  return (
-    <Box sx={{ display: "flex", justifyContent: "center", mt: 5 }}>
-      <Card sx={{ p: 3, minWidth: 360, textAlign: "center" }}>
-        <CardContent>
+return (
+<Box
+  sx={{
+    display: "flex",
+    justifyContent: "center", // centre horizontalement
+    alignItems: "center",     // centre verticalement
+    width: "100vw",           // prend toute la largeur
+    height: "100vh",          // prend toute la hauteur
+  }}
+>
+  <Card sx={{ p: 3, minWidth: 360, textAlign: "center" }}>
+    <CardContent>
           {!started && (
             <Button variant="contained" onClick={startSeries}>
               Démarrer
