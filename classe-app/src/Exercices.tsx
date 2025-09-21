@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Box, Card, CardContent, Typography, TextField, IconButton, Grid, Button } from "@mui/material";
+import { Box, Card, CardContent, Typography, Grid, Button } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
 
@@ -9,7 +9,7 @@ function generateExercise() {
   return { a, b, answer: a + b };
 }
 
-export default function Exercises() {
+export default function AdditionExercises() {
   const [exercise, setExercise] = useState(generateExercise());
   const [input, setInput] = useState("");
   const [validated, setValidated] = useState(null);
@@ -25,6 +25,10 @@ export default function Exercises() {
     setValidated(null);
   };
 
+  const handleNumberClick = (num) => {
+    setInput(num.toString());
+  };
+
   return (
     <Box sx={{ display: "flex", justifyContent: "center", mt: 5 }}>
       <Card sx={{ p: 3, minWidth: 300, textAlign: "center" }}>
@@ -37,18 +41,27 @@ export default function Exercises() {
             {exercise.a} + {exercise.b} = ?
           </Typography>
 
+          <Grid container spacing={1} justifyContent="center" mb={2}>
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
+              <Grid item key={num}>
+                <Button
+                  variant={input === num.toString() ? "contained" : "outlined"}
+                  onClick={() => handleNumberClick(num)}
+                  sx={{ width: 50, height: 50 }}
+                >
+                  {num}
+                </Button>
+              </Grid>
+            ))}
+          </Grid>
+
+          <Typography variant="h6" gutterBottom>
+            Réponse : {input || "?"}
+          </Typography>
+
           <Grid container spacing={2} justifyContent="center" alignItems="center">
             <Grid item>
-              <TextField
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                type="number"
-                placeholder="Réponse"
-                sx={{ width: 100 }}
-              />
-            </Grid>
-            <Grid item>
-              <Button variant="contained" onClick={checkAnswer}>
+              <Button variant="contained" onClick={checkAnswer} disabled={!input}>
                 Valider
               </Button>
             </Grid>
