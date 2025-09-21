@@ -82,9 +82,31 @@ export default function Exercises(): JSX.Element {
     }
   };
 
+  const checkAnswer = () => {
+    if (input === "" || !exercise) return;
+    const userVal = parseInt(input, 10);
+    const isCorrect = userVal === exercise.answer;
+    setValidated(isCorrect);
+
+    // Si c’est le dernier exercice, mémoriser et arrêter le chrono
+    if (currentSeries === params.series) {
+      setResults(prev => [
+        ...prev,
+        {
+          ...exercise,
+          userAnswer: userVal,
+          correct: isCorrect
+        }
+      ]);
+      stopTimer();
+    }
+  };
+
   const newExercise = () => {
     if (!exercise) return;
-    if (validated !== null) {
+
+    // mémoriser seulement si ce n’est pas le dernier exercice
+    if (validated !== null && currentSeries < params.series) {
       setResults(prev => [
         ...prev,
         {
@@ -96,8 +118,7 @@ export default function Exercises(): JSX.Element {
     }
 
     if (currentSeries === params.series) {
-      stopTimer();
-      setCurrentSeries(prev => prev + 1);
+      setCurrentSeries(prev => prev + 1); // passe à l’affichage final
       return;
     }
 
@@ -112,23 +133,19 @@ export default function Exercises(): JSX.Element {
   const handleBackspace = () => setInput(prev => prev.slice(0, -1));
   const handleClear = () => setInput("");
 
-  const checkAnswer = () => {
-    if (input === "" || !exercise) return;
-    const userVal = parseInt(input, 10);
-    setValidated(userVal === exercise.answer);
-  };
-
-  const restartExercise = () => setInput("");
+  const restartExercise = () => {
+   setInput("");
+   setValidated(null);
+ };
 
   const restartSeries = () => {
-    // réinitialiser complètement la série
     setCurrentSeries(1);
     setResults([]);
     setExercise(generateExercise(params.maxd1, params.maxd2, params.maxres));
     setInput("");
     setValidated(null);
     setTime(0);
-    setStarted(true);
+    setStarted(false);
     if (timerRef.current) clearInterval(timerRef.current);
     timerRef.current = setInterval(() => setTime(prev => prev + 1), 1000);
   };
@@ -155,7 +172,7 @@ export default function Exercises(): JSX.Element {
                 onNumberClick={handleNumberClick}
                 onBackspace={handleBackspace}
                 onClear={handleClear}
-                disabled={validated !== null && params.mode === 1}
+                disabled={validated !== null}
               />
 
               <Grid container spacing={2} justifyContent="center" alignItems="center" mt={2}>
