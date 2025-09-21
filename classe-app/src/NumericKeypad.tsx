@@ -3,8 +3,20 @@ import { Box, Grid, Button } from "@mui/material";
 import BackspaceIcon from "@mui/icons-material/Backspace";
 import ClearIcon from "@mui/icons-material/Clear";
 
-export default function NumericKeypad({ onNumberClick, onBackspace, onClear, disabled }) {
-  const keypad = [
+interface NumericKeypadProps {
+  onNumberClick: (num: number) => void;
+  onBackspace: () => void;
+  onClear: () => void;
+  disabled?: boolean;
+}
+
+export default function NumericKeypad({
+  onNumberClick,
+  onBackspace,
+  onClear,
+  disabled = false,
+}: NumericKeypadProps): JSX.Element {
+  const keypad: (number | "back" | "clear")[][] = [
     [1, 2, 3],
     [4, 5, 6],
     [7, 8, 9],
@@ -37,7 +49,7 @@ export default function NumericKeypad({ onNumberClick, onBackspace, onClear, dis
                 </Button>
               ) : (
                 <Button
-                  onClick={() => onNumberClick(key)}
+                  onClick={() => onNumberClick(key as number)}
                   variant="outlined"
                   sx={{ minWidth: 64, height: 48 }}
                   disabled={disabled}
