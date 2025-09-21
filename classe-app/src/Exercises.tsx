@@ -280,61 +280,78 @@ return (
             </>
           )}
 
-          {seriesFinished && (
-            <>
-              <Typography variant="h5" gutterBottom>
-                Série terminée ! 🎉
-              </Typography>
+      {seriesFinished && (
+        <>
+          <Typography variant="h5" gutterBottom>
+            Série terminée ! 🎉
+          </Typography>
 
-                <Typography variant="subtitle1" gutterBottom>
-                  {params.mode === 1
-                    ? `Résultat: ${firstTryCount} / ${results.length} réussi(s) au premier essai`
-                    : `Résultat: ${correctCount} / ${results.length} bonnes réponses`}
+          <Typography variant="subtitle1" gutterBottom>
+            {params.mode === 1
+              ? `Résultat: ${firstTryCount} / ${results.length} réussi(s) au premier essai`
+              : `Résultat: ${correctCount} / ${results.length} bonnes réponses`}
+          </Typography>
+
+          <Typography variant="subtitle2" gutterBottom>
+            Temps total: {time}s
+          </Typography>
+
+          {/* Zone scrollable pour les résultats */}
+          <Box
+            mt={2}
+            sx={{
+              maxHeight: "40vh",
+              overflowY: "auto",
+              pr: 1, // petit padding pour éviter que la scrollbar chevauche le contenu
+            }}
+          >
+            {results.map((res, idx) => (
+              <Box
+                key={idx}
+                display="flex"
+                justifyContent="space-between"
+                alignItems="center"
+                mb={1}
+                p={1}
+                border="1px solid #ddd"
+                borderRadius={2}
+              >
+                <Typography>
+                  {res.a} + {res.b} = {res.answer}
                 </Typography>
 
-              <Typography variant="subtitle2" gutterBottom>
-                Temps total: {time}s
-              </Typography>
+                {params.mode === 0 && (
+                  <Typography>Votre réponse: {res.userAnswer}</Typography>
+                )}
 
-              <Box mt={2}>
-                {results.map((res, idx) => (
-                  <Box
-                    key={idx}
-                    display="flex"
-                    justifyContent="space-between"
-                    alignItems="center"
-                    mb={1}
-                    p={1}
-                    border="1px solid #ddd"
-                    borderRadius={2}
-                  >
-                    <Typography>
-                      {res.a} + {res.b} = {res.answer}
-                    </Typography>
+                {params.mode === 1 && res.attempts && res.attempts > 1 && (
+                  <Typography>{res.attempts - 1} erreur(s)</Typography>
+                )}
 
-                    {params.mode === 0 && (   <Typography>Votre réponse: {res.userAnswer}</Typography> )}
-
-                    {params.mode === 1 && res.attempts && res.attempts > 1 && (
-                    <Typography>
-                       {res.attempts-1} erreur(s)
-                    </Typography>
-                    )}
-
-                    {params.mode === 0 && res.correct && (  <CheckCircleIcon color="success" /> )}
-                    {params.mode === 0 && !res.correct && (  <CancelIcon color="error" />)}
-                   {params.mode === 1 &&  res.attempts && res.attempts === 1 && (  <CheckCircleIcon color="success" /> )}
-                   {params.mode === 1 && res.attempts && res.attempts > 1 && (  <CancelIcon color="error" />)}
-                  </Box>
-                ))}
+                {params.mode === 0 && res.correct && (
+                  <CheckCircleIcon color="success" />
+                )}
+                {params.mode === 0 && !res.correct && (
+                  <CancelIcon color="error" />
+                )}
+                {params.mode === 1 && res.attempts && res.attempts === 1 && (
+                  <CheckCircleIcon color="success" />
+                )}
+                {params.mode === 1 && res.attempts && res.attempts > 1 && (
+                  <CancelIcon color="error" />
+                )}
               </Box>
+            ))}
+          </Box>
 
-              <Box mt={3}>
-                <Button variant="contained" onClick={restartSeries}>
-                  Recommencer
-                </Button>
-              </Box>
-            </>
-          )}
+          <Box mt={3}>
+            <Button variant="contained" onClick={restartSeries}>
+              Recommencer
+            </Button>
+          </Box>
+        </>
+      )}
+
         </CardContent>
       </Card>
     </Box>
