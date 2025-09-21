@@ -18,6 +18,11 @@ interface Params {
   series: number;
 }
 
+interface ExerciseResult extends Exercise {
+  userAnswer: number | null;
+  correct: boolean | null;
+}
+
 function randomNumberMaxDigits(maxDigits: number): number {
   if (!maxDigits || maxDigits < 1) maxDigits = 1;
   const min = 1;
@@ -41,7 +46,7 @@ export default function Exercises(): JSX.Element {
   const [validated, setValidated] = useState<null | boolean>(null);
   const [params, setParams] = useState<Params>({ maxd1: 1, maxd2: 1, maxres: 2, mode: 0, series: 0 });
   const [currentSeries, setCurrentSeries] = useState(0);
-  const [results, setResults] = useState<boolean[]>([]);
+  const [results, setResults] = useState<ExerciseResult[]>([]);
 
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
@@ -61,7 +66,22 @@ export default function Exercises(): JSX.Element {
   const seriesFinished = params.series > 0 && currentSeries > params.series;
 
   const newExercise = () => {
+    if (!exercise) return;
+
+    // On mémorise l'exercice actuel si réponse validée
+    if (validated !== null) {
+      setResults(prev => [
+        ...prev,
+        {
+          ...exercise,
+          userAnswer: parseInt(input, 10),
+          correct: validated
+        }
+      ]);
+    }
+
     if (seriesFinished) return;
+
     const ex = generateExercise(params.maxd1, params.maxd2, params.maxres);
     setExercise(ex);
     setInput("");
@@ -75,9 +95,9 @@ export default function Exercises(): JSX.Element {
 
   const checkAnswer = () => {
     if (input === "" || !exercise) return;
-    const isCorrect = parseInt(input, 10) === exercise.answer;
+    const userVal = parseInt(input, 10);
+    const isCorrect = userVal === exercise.answer;
     setValidated(isCorrect);
-    setResults(prev => [...prev, isCorrect]);
   };
 
   const restartExercise = () => {
@@ -100,40 +120,62 @@ export default function Exercises(): JSX.Element {
               <Typography variant="h5" gutterBottom>
                 Série terminée ! 🎉
               </Typography>
-              <Box display="flex" justifyContent="center" mb={2} flexWrap="wrap" gap={0.5}>
-                {results.map((res, idx) =>
-                  res ? <CheckCircleIcon key={idx} color="success" /> : <CancelIcon key={idx} color="error" />
-                )}
+              <Box mt={2}>
+                {results.map((res, idx) => (
+                  <Box
+                    key={idx}
+                    display="flex"
+                    justifyContent="space-between"
+                    alignItems="center"
+                    mb={1}
+                    p={1}
+                    border="1px solid #ddd"
+                    borderRadius={2}
+                  >
+                    <Typography>
+                      {res.a} + {res.b} = {res.answer}
+                    </Typography>
+                    <Typography>
+                      Votre réponse: {res.userAnswer}
+                    </Typography>
+                    {res.correct ? (
+                      <CheckCircleIcon color="success" />
+                    ) : (
+                      <CancelIcon color="error" />
+                    )}
+                  </Box>
+                ))}
               </Box>
             </>
           )}
 
+            {!seriesFinished && (
           <NumericKeypad
             onNumberClick={handleNumberClick}
             onBackspace={handleBackspace}
             onClear={handleClear}
-            disabled={seriesFinished || (validated !== null || params.mode === 1 && validated === true)}
-          />
+            disabled={seriesFinished || (validated !== null && params.mode === 1)}
+          />)}
 
           {!seriesFinished && (
-            <Grid container spacing={2} justifyContent="center" alignItems="center">
-            {validated === null &&
-              <Grid item>
-                <Button
-                  variant="contained"
-                  onClick={checkAnswer}
-                  disabled={!input || validated !== null}
-                >
-                  Valider
-                </Button>
-              </Grid>
-              }
-              {validated !== null &&
-              <Grid item>
-                {validated === true && <CheckCircleIcon color="success" fontSize="large" />}
-                {validated === false && <CancelIcon color="error" fontSize="large" />}
-              </Grid>
-              }
+            <Grid container spacing={2} justifyContent="center" alignItems="center" mt={2}>
+              {validated === null && (
+                <Grid item>
+                  <Button
+                    variant="contained"
+                    onClick={checkAnswer}
+                    disabled={!input || validated !== null}
+                  >
+                    Valider
+                  </Button>
+                </Grid>
+              )}
+              {validated !== null && (
+                <Grid item>
+                  {validated === true && <CheckCircleIcon color="success" fontSize="large" />}
+                  {validated === false && <CancelIcon color="error" fontSize="large" />}
+                </Grid>
+              )}
             </Grid>
           )}
 
@@ -145,8 +187,11 @@ export default function Exercises(): JSX.Element {
                     Recommencer
                   </Button>
                 ) : (
-                  <Button variant="outlined" onClick={newExercise}>
-                    Exercice suivant
+                  <Button
+                    variant="outlined"
+                    onClick={newExercise}
+                  >
+                    {currentSeries === params.series ? "Afficher votre résultat" : "Exercice suivant"}
                   </Button>
                 )
               ) : (
@@ -157,7 +202,7 @@ export default function Exercises(): JSX.Element {
             </Box>
           )}
 
-          {/* Ajout du suivi de la série en bas */}
+          {/* Affichage du suivi de la série */}
           {params.series > 0 && !seriesFinished && (
             <Box mt={2}>
               <Typography variant="subtitle1">
@@ -165,7 +210,6 @@ export default function Exercises(): JSX.Element {
               </Typography>
             </Box>
           )}
-
         </CardContent>
       </Card>
     </Box>
