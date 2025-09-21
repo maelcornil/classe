@@ -1,19 +1,43 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Box, Card, CardContent, Typography, Grid, Button } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
-import NumericKeypad from "./NumericKeypad"; // Import du pavé numérique
+import NumericKeypad from "./NumericKeypad"; // Composant réutilisable
 
-function generateExercise() {
-  const a = Math.floor(Math.random() * 9) + 1;
-  const b = Math.floor(Math.random() * 9) + 1;
+// Fonction pour générer un nombre aléatoire avec N chiffres
+function randomNumberWithDigits(digits) {
+  if (digits < 1) digits = 1;
+  const min = 10 ** (digits - 1);
+  const max = 10 ** digits - 1;
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+// Génération d'un exercice
+function generateExercise(digits) {
+  const a = randomNumberWithDigits(digits);
+  const b = randomNumberWithDigits(digits);
   return { a, b, answer: a + b };
 }
 
 export default function AdditionExercises() {
-  const [exercise, setExercise] = useState(generateExercise());
+  const [digits, setDigits] = useState(1); // Nombre de chiffres par défaut
+  const [exercise, setExercise] = useState(generateExercise(digits));
   const [input, setInput] = useState("");
   const [validated, setValidated] = useState(null);
+
+  // Lecture des paramètres d'URL
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const d = parseInt(params.get("digits"), 10);
+    if (!isNaN(d) && d > 0) setDigits(d);
+  }, []);
+
+  // Régénère un exercice quand digits change
+  useEffect(() => {
+    setExercise(generateExercise(digits));
+    setInput("");
+    setValidated(null);
+  }, [digits]);
 
   const handleNumberClick = (num) => {
     if (validated !== null) return;
@@ -37,7 +61,7 @@ export default function AdditionExercises() {
   };
 
   const nextExercise = () => {
-    setExercise(generateExercise());
+    setExercise(generateExercise(digits));
     setInput("");
     setValidated(null);
   };
@@ -47,7 +71,7 @@ export default function AdditionExercises() {
       <Card sx={{ p: 3, minWidth: 320, textAlign: "center" }}>
         <CardContent>
           <Typography variant="h4" gutterBottom>
-            {exercise.a} + {exercise.b} = {input || "?"}
+            {exercise.a} + {exercise.b} = {input || " "}
           </Typography>
 
           {/* Pavé numérique réutilisable */}

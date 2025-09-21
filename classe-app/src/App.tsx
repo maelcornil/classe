@@ -1,22 +1,15 @@
 import React from "react";
-import Exercises from "./AdditionExercises";
-import { Box } from "@mui/material";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import IndexPage from "./IndexPage";
+import AdditionExercises from "./AdditionExercises";
 
-function App() {
+export default function App() {
   return (
-    <Box
-      sx={{
-        display: "flex",
-        justifyContent: "center", // centre horizontalement
-        minHeight: "100vh", // occupe toute la hauteur pour bien placer
-        alignItems: "flex-start", // garde en haut (si tu veux centrer verticalement mets "center")
-        backgroundColor: "#f5f5f5", // petit fond gris clair
-        p: 2,
-      }}
-    >
-      <Exercises />
-    </Box>
+    <Router>
+      <Routes>
+        <Route path="/" element={<IndexPage />} />
+        <Route path="/addition" element={<AdditionExercises />} />
+      </Routes>
+    </Router>
   );
 }
-
-export default App;
