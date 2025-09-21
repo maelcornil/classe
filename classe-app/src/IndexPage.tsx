@@ -45,89 +45,128 @@ export default function IndexPage(): JSX.Element {
 >
   <Card sx={{ p: 3, minWidth: 360, textAlign: "center" }}>
     <CardContent>
+
+    <Stack direction="row" spacing={2} justifyContent="center" mb={3}>
+                <Button variant="contained" onClick={handlePresetNolan}>Nolan</Button>
+                <Button variant="contained" onClick={handlePresetLiam}>Liam</Button>
+                <Button variant="contained" onClick={handlePresetNathan}>Nathan</Button>
+              </Stack>
+
           <Typography variant="h4" gutterBottom>
             Paramètres de l'exercice
           </Typography>
 
-          {/* Boutons presets différents */}
-          <Stack direction="row" spacing={2} justifyContent="center" mb={3}>
-            <Button variant="contained" onClick={handlePresetNolan}>Nolan</Button>
-            <Button variant="contained" onClick={handlePresetLiam}>Liam</Button>
-            <Button variant="contained" onClick={handlePresetNathan}>Nathan</Button>
-          </Stack>
+<Stack spacing={2} mt={2}>
+  {/* Premier nombre */}
+  <Stack direction="row" spacing={2} alignItems="center">
+    <Typography sx={{ minWidth: 250, textAlign: "right" }}>
+      Premier nombre :
+    </Typography>
+    <TextField
+        label="Min chiffres"
+      placeholder="Min"
+      type="number"
+      value={minD1}
+      onChange={(e) => setMinD1(Math.max(1, parseInt(e.target.value) || 1))}
+      inputProps={{ min: 1 }}
+      fullWidth
+    />
+    <TextField
+      label="Max chiffres"
+      placeholder="Max"
+      type="number"
+      value={maxD1}
+      onChange={(e) => setMaxD1(Math.max(minD1, parseInt(e.target.value) || minD1))}
+      inputProps={{ min: minD1 }}
+      fullWidth
+    />
+  </Stack>
 
-          <Stack spacing={2} mt={2}>
-            <TextField
-              label="Chiffres min pour le premier nombre"
-              type="number"
-              value={minD1}
-              onChange={(e) => setMinD1(Math.max(1, parseInt(e.target.value) || 1))}
-              inputProps={{ min: 1 }}
-            />
-            <TextField
-              label="Chiffres max pour le premier nombre"
-              type="number"
-              value={maxD1}
-              onChange={(e) => setMaxD1(Math.max(minD1, parseInt(e.target.value) || minD1))}
-              inputProps={{ min: minD1 }}
-            />
+  {/* Deuxième nombre */}
+  <Stack direction="row" spacing={2} alignItems="center">
+    <Typography sx={{ minWidth: 250, textAlign: "right" }}>
+      Deuxième nombre :
+    </Typography>
+    <TextField
+     label="Min chiffres"
+      placeholder="Min"
+      type="number"
+      value={minD2}
+      onChange={(e) => setMinD2(Math.max(1, parseInt(e.target.value) || 1))}
+      inputProps={{ min: 1 }}
+      fullWidth
+    />
+    <TextField
+     label="Max chiffres"
+      placeholder="Max"
+      type="number"
+      value={maxD2}
+      onChange={(e) => setMaxD2(Math.max(minD2, parseInt(e.target.value) || minD2))}
+      inputProps={{ min: minD2 }}
+      fullWidth
+    />
+  </Stack>
 
-            <TextField
-              label="Chiffres min pour le deuxième nombre"
-              type="number"
-              value={minD2}
-              onChange={(e) => setMinD2(Math.max(1, parseInt(e.target.value) || 1))}
-              inputProps={{ min: 1 }}
-            />
-            <TextField
-              label="Chiffres max pour le deuxième nombre"
-              type="number"
-              value={maxD2}
-              onChange={(e) => setMaxD2(Math.max(minD2, parseInt(e.target.value) || minD2))}
-              inputProps={{ min: minD2 }}
-            />
+  {/* Résultat */}
+  <Stack direction="row" spacing={2} alignItems="center">
+    <Typography sx={{ minWidth: 250, textAlign: "right" }}>
+      Résultat :
+    </Typography>
+    <TextField
+     label="Min chiffres"
+      placeholder="Min"
+      type="number"
+      value={minRes}
+      onChange={(e) => setMinRes(Math.max(1, parseInt(e.target.value) || 1))}
+      inputProps={{ min: 1 }}
+      fullWidth
+    />
+    <TextField
+     label="Max chiffres"
+      placeholder="Max"
+      type="number"
+      value={maxRes}
+      onChange={(e) => setMaxRes(Math.max(minRes, parseInt(e.target.value) || minRes))}
+      inputProps={{ min: minRes }}
+      fullWidth
+    />
+  </Stack>
 
-            <TextField
-              label="Chiffres min pour le résultat"
-              type="number"
-              value={minRes}
-              onChange={(e) => setMinRes(Math.max(1, parseInt(e.target.value) || 1))}
-              inputProps={{ min: 1 }}
-            />
-            <TextField
-              label="Chiffres max pour le résultat"
-              type="number"
-              value={maxRes}
-              onChange={(e) => setMaxRes(Math.max(minRes, parseInt(e.target.value) || minRes))}
-              inputProps={{ min: minRes }}
-            />
+  {/* Nombre d'exercices */}
+  <Stack direction="row" spacing={2} alignItems="center">
+    <Typography sx={{ minWidth: 250, textAlign: "right" }}>
+      Nombre d'exercices :
+    </Typography>
+    <TextField
+      type="number"
+      value={series}
+      onChange={(e) => setSeries(Math.max(1, parseInt(e.target.value) || 1))}
+      inputProps={{ min: 1 }}
+      fullWidth
+    />
+  </Stack>
 
-            <TextField
-              label="Nombre d'exercices (série)"
-              type="number"
-              value={series}
-              onChange={(e) => setSeries(Math.max(1, parseInt(e.target.value) || 1))}
-              inputProps={{ min: 1 }}
-            />
+  {/* Mode */}
+  <FormControlLabel
+    control={
+      <Switch
+        checked={mode === 1}
+        onChange={(e) => setMode(e.target.checked ? 1 : 0)}
+      />
+    }
+    label={
+      mode === 1
+        ? "Recommencer jusqu'à la bonne réponse"
+        : "Exercice suivant même si faux"
+    }
+  />
 
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={mode === 1}
-                  onChange={(e) => setMode(e.target.checked ? 1 : 0)}
-                />
-              }
-              label={
-                mode === 1
-                  ? "Recommencer jusqu'à la bonne réponse"
-                  : "Exercice suivant même si faux"
-              }
-            />
+  {/* Bouton start */}
+  <Button variant="contained" onClick={handleStart}>
+    Commencer l'exercice
+  </Button>
+</Stack>
 
-            <Button variant="contained" onClick={handleStart}>
-              Commencer l'exercice
-            </Button>
-          </Stack>
         </CardContent>
       </Card>
     </Box>
