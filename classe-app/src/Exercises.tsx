@@ -118,19 +118,25 @@ export default function Exercises(): JSX.Element {
             </Grid>
           </Grid>
 
-          {validated !== null && (
-            <Box mt={3} display="flex" justifyContent="center" gap={2}>
-              {validated === false && params.mode === 1 ? (
-                <Button variant="outlined" onClick={restartExercise}>
-                  Recommencer
-                </Button>
+            <Box mt={3} display="flex" justifyContent="center" gap={2} minHeight={48}>
+              {validated !== null ? (
+                validated === false && params.mode === 1 ? (
+                  <Button variant="outlined" onClick={restartExercise}>
+                    Recommencer
+                  </Button>
+                ) : (
+                  <Button variant="outlined" onClick={newExercise}>
+                    Exercice suivant
+                  </Button>
+                )
               ) : (
-                <Button variant="outlined" onClick={newExercise}>
-                  Exercice suivant
-                </Button>
+                // Réserve l'espace sans afficher le bouton
+                <Box visibility="hidden">
+                  <Button variant="outlined">Placeholder</Button>
+                </Box>
               )}
             </Box>
-          )}
+
         </CardContent>
       </Card>
     </Box>
