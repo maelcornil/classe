@@ -32,6 +32,7 @@ function minMaxFromDigits(digits: number): { min: number; max: number } {
 interface ExerciseResult extends Exercise {
   userAnswer: number | null;
   correct: boolean | null;
+   attempts: number;
 }
 
 function randomNumberBetween(min: number, max: number): number {
@@ -80,6 +81,7 @@ const [params, setParams] = useState<Params>({
   const [started, setStarted] = useState(false);
   const [time, setTime] = useState(0);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+const [exerciseAttempts, setExerciseAttempts] = useState(0);
 
 useEffect(() => {
   const searchParams = new URLSearchParams(window.location.search);
@@ -112,6 +114,21 @@ console.log({
 
   const seriesFinished = params.series > 0 && currentSeries > params.series;
 
+
+  const restartSeries = () => {
+   setExerciseAttempts(0);
+    setCurrentSeries(1);
+    setResults([]);
+    setExercise(generateExercise(params.mind1, params.maxd1, params.mind2, params.maxd2, params.minres, params.maxres));
+    setInput("");
+    setValidated(null);
+    setTime(0);
+    setStarted(false);
+    if (timerRef.current) clearInterval(timerRef.current);
+    timerRef.current = setInterval(() => setTime(prev => prev + 1), 1000);
+  };
+
+
   const startSeries = () => {
     setStarted(true);
     setCurrentSeries(1);
@@ -136,32 +153,25 @@ console.log({
     const userVal = parseInt(input, 10);
     const isCorrect = userVal === exercise.answer;
     setValidated(isCorrect);
+    setExerciseAttempts(prev => prev + 1);
 
-    // Si c’est le dernier exercice, mémoriser et arrêter le chrono
+    // Si c’est le dernier exercice, arrêter le chrono
     if (currentSeries === params.series) {
-      setResults(prev => [
-        ...prev,
-        {
-          ...exercise,
-          userAnswer: userVal,
-          correct: isCorrect
-        }
-      ]);
-      stopTimer();
+      if(isCorrect) stopTimer();
     }
   };
 
   const newExercise = () => {
     if (!exercise) return;
 
-    // mémoriser seulement si ce n’est pas le dernier exercice
-    if (validated !== null && currentSeries < params.series) {
+    if (validated !== null) {
       setResults(prev => [
         ...prev,
         {
           ...exercise,
           userAnswer: parseInt(input, 10),
-          correct: validated
+          correct: validated,
+         attempts: exerciseAttempts
         }
       ]);
     }
@@ -172,6 +182,7 @@ console.log({
     }
     setExercise(generateExercise(params.mind1, params.maxd1, params.mind2, params.maxd2, params.minres, params.maxres));
     setInput("");
+    setExerciseAttempts(0);
     setValidated(null);
     setCurrentSeries(prev => prev + 1);
   };
@@ -184,18 +195,6 @@ console.log({
    setInput("");
    setValidated(null);
  };
-
-  const restartSeries = () => {
-    setCurrentSeries(1);
-    setResults([]);
-    setExercise(generateExercise(params.mind1, params.maxd1, params.mind2, params.maxd2, params.minres, params.maxres));
-    setInput("");
-    setValidated(null);
-    setTime(0);
-    setStarted(false);
-    if (timerRef.current) clearInterval(timerRef.current);
-    timerRef.current = setInterval(() => setTime(prev => prev + 1), 1000);
-  };
 
   const correctCount = results.filter(r => r.correct).length;
 
@@ -300,8 +299,19 @@ console.log({
                     <Typography>
                       {res.a} + {res.b} = {res.answer}
                     </Typography>
-                    <Typography>Votre réponse: {res.userAnswer}</Typography>
-                    {res.correct ? <CheckCircleIcon color="success" /> : <CancelIcon color="error" />}
+
+                    {params.mode === 0 && (   <Typography>Votre réponse: {res.userAnswer}</Typography> )}
+
+                    {params.mode === 1 && res.attempts && res.attempts > 1 && (
+                    <Typography>
+                       {res.attempts-1} erreur(s)
+                    </Typography>
+                    )}
+
+                    {params.mode === 0 && res.correct && (  <CheckCircleIcon color="success" /> )}
+                    {params.mode === 0 && !res.correct && (  <CancelIcon color="error" />)}
+                   {params.mode === 1 &&  res.attempts && res.attempts === 1 && (  <CheckCircleIcon color="success" /> )}
+                   {params.mode === 1 && res.attempts && res.attempts > 1 && (  <CancelIcon color="error" />)}
                   </Box>
                 ))}
               </Box>
