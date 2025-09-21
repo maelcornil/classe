@@ -9,9 +9,12 @@ export default function IndexPage(): JSX.Element {
   const [maxd2, setMaxd2] = useState<number>(1);
   const [maxres, setMaxres] = useState<number>(2);
   const [mode, setMode] = useState<number>(0); // 0 = auto passage, 1 = correction obligatoire
+  const [series, setSeries] = useState<number>(10); // Nouvelle valeur par défaut
 
   const handleStart = (): void => {
-    navigate(`/exercice?maxd1=${maxd1}&maxd2=${maxd2}&maxres=${maxres}&mode=${mode}`);
+    navigate(
+      `/exercice?maxd1=${maxd1}&maxd2=${maxd2}&maxres=${maxres}&mode=${mode}&series=${series}`
+    );
   };
 
   return (
@@ -53,6 +56,15 @@ export default function IndexPage(): JSX.Element {
               inputProps={{ min: 1 }}
             />
 
+            <TextField
+              label="Nombre d'exercices (series)"
+              type="number"
+              value={series}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setSeries(Math.max(1, parseInt(e.target.value) || 1))
+              }
+              inputProps={{ min: 1 }}
+            />
 
             <FormControlLabel
               control={
@@ -63,7 +75,11 @@ export default function IndexPage(): JSX.Element {
                   }
                 />
               }
-              label={mode === 1 ? "Recommencer jusqu'à la bonne réponse" : "Exercice suivant même si faux"}
+              label={
+                mode === 1
+                  ? "Recommencer jusqu'à la bonne réponse"
+                  : "Exercice suivant même si faux"
+              }
             />
 
             <Button variant="contained" onClick={handleStart}>
