@@ -156,6 +156,16 @@ export default function Exercises(): JSX.Element {
               )}
             </Box>
           )}
+
+          {/* Ajout du suivi de la série en bas */}
+          {params.series > 0 && !seriesFinished && (
+            <Box mt={2}>
+              <Typography variant="subtitle1">
+                {currentSeries} / {params.series}
+              </Typography>
+            </Box>
+          )}
+
         </CardContent>
       </Card>
     </Box>
