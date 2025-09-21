@@ -197,6 +197,7 @@ console.log({
  };
 
   const correctCount = results.filter(r => r.correct).length;
+  const firstTryCount = results.filter(r => r.correct && r.attempts === 1).length;
 
   return (
     <Box sx={{ display: "flex", justifyContent: "center", mt: 5 }}>
@@ -277,9 +278,12 @@ console.log({
                 Série terminée ! 🎉
               </Typography>
 
-              <Typography variant="subtitle1" gutterBottom>
-                Résultat: {correctCount} / {results.length} bonnes réponses
-              </Typography>
+                <Typography variant="subtitle1" gutterBottom>
+                  {params.mode === 1
+                    ? `Résultat: ${firstTryCount} / ${results.length} réussi(s) au premier essai`
+                    : `Résultat: ${correctCount} / ${results.length} bonnes réponses`}
+                </Typography>
+
               <Typography variant="subtitle2" gutterBottom>
                 Temps total: {time}s
               </Typography>
