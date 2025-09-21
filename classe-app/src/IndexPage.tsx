@@ -22,6 +22,17 @@ export default function IndexPage(): JSX.Element {
     );
   };
 
+  // Presets différents pour chaque prénom
+  const handlePresetNolan = () => {
+    navigate(`/exercice?mind1=1&maxd1=1&mind2=2&maxd2=2&minres=2&maxres=3&mode=0&series=10`);
+  };
+  const handlePresetLiam = () => {
+    navigate(`/exercice?mind1=1&maxd1=1&mind2=2&maxd2=2&minres=2&maxres=3&mode=0&series=10`);
+  };
+  const handlePresetNathan = () => {
+    navigate(`/exercice?mind1=2&maxd2=3&mind2=2&maxd2=2&minres=2&maxres=3&mode=0&series=10`);
+  };
+
   return (
     <Box sx={{ display: "flex", justifyContent: "center", mt: 10 }}>
       <Card sx={{ p: 3, minWidth: 350, textAlign: "center" }}>
@@ -29,6 +40,13 @@ export default function IndexPage(): JSX.Element {
           <Typography variant="h4" gutterBottom>
             Paramètres de l'exercice
           </Typography>
+
+          {/* Boutons presets différents */}
+          <Stack direction="row" spacing={2} justifyContent="center" mb={3}>
+            <Button variant="contained" onClick={handlePresetNolan}>Nolan</Button>
+            <Button variant="contained" onClick={handlePresetLiam}>Liam</Button>
+            <Button variant="contained" onClick={handlePresetNathan}>Nathan</Button>
+          </Stack>
 
           <Stack spacing={2} mt={2}>
             <TextField
