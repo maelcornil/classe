@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Box, Card, CardContent, Typography, Grid, Button } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
@@ -47,6 +47,9 @@ export default function Exercises(): JSX.Element {
   const [params, setParams] = useState<Params>({ maxd1: 1, maxd2: 1, maxres: 2, mode: 0, series: 0 });
   const [currentSeries, setCurrentSeries] = useState(0);
   const [results, setResults] = useState<ExerciseResult[]>([]);
+  const [started, setStarted] = useState(false);
+  const [time, setTime] = useState(0); // temps écoulé en secondes
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
@@ -55,20 +58,37 @@ export default function Exercises(): JSX.Element {
     const maxres = parseInt(searchParams.get("maxres") || "2", 10);
     const mode = parseInt(searchParams.get("mode") || "0", 10) as 0 | 1;
     const series = parseInt(searchParams.get("series") || "0", 10);
-
-    const newParams = { maxd1, maxd2, maxres, mode, series };
-    setParams(newParams);
-
-    setCurrentSeries(1);
-    setExercise(generateExercise(maxd1, maxd2, maxres));
+    setParams({ maxd1, maxd2, maxres, mode, series });
   }, []);
 
   const seriesFinished = params.series > 0 && currentSeries > params.series;
 
+  const startSeries = () => {
+    setStarted(true);
+    setCurrentSeries(1);
+    setExercise(generateExercise(params.maxd1, params.maxd2, params.maxres));
+    setResults([]);
+    setValidated(null);
+    setInput("");
+    setTime(0);
+    // Démarrer le chrono
+    if (timerRef.current) clearInterval(timerRef.current);
+    timerRef.current = setInterval(() => {
+      setTime(prev => prev + 1);
+    }, 1000);
+  };
+
+  const stopTimer = () => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+  };
+
   const newExercise = () => {
     if (!exercise) return;
 
-    // On mémorise l'exercice actuel si réponse validée
+    // mémoriser exercice actuel
     if (validated !== null) {
       setResults(prev => [
         ...prev,
@@ -80,7 +100,11 @@ export default function Exercises(): JSX.Element {
       ]);
     }
 
-    if (seriesFinished) return;
+    if (currentSeries === params.series) {
+      stopTimer();
+      setCurrentSeries(prev => prev + 1); // permet d'afficher sérieFinished
+      return;
+    }
 
     const ex = generateExercise(params.maxd1, params.maxd2, params.maxres);
     setExercise(ex);
@@ -105,14 +129,79 @@ export default function Exercises(): JSX.Element {
     setValidated(null);
   };
 
+  const correctCount = results.filter(r => r.correct).length;
+
   return (
     <Box sx={{ display: "flex", justifyContent: "center", mt: 5 }}>
-      <Card sx={{ p: 3, minWidth: 320, textAlign: "center" }}>
+      <Card sx={{ p: 3, minWidth: 360, textAlign: "center" }}>
         <CardContent>
-          {!seriesFinished && exercise && (
-            <Typography variant="h4" gutterBottom>
-              {exercise.a} + {exercise.b} = {input || " "}
-            </Typography>
+          {!started && (
+            <Button variant="contained" onClick={startSeries}>
+              Démarrer
+            </Button>
+          )}
+
+          {started && !seriesFinished && exercise && (
+            <>
+              <Typography variant="h4" gutterBottom>
+                {exercise.a} + {exercise.b} = {input || " "}
+              </Typography>
+
+              <NumericKeypad
+                onNumberClick={handleNumberClick}
+                onBackspace={handleBackspace}
+                onClear={handleClear}
+                disabled={validated !== null && params.mode === 1}
+              />
+
+              <Grid container spacing={2} justifyContent="center" alignItems="center" mt={2}>
+                {validated === null && (
+                  <Grid item>
+                    <Button
+                      variant="contained"
+                      onClick={checkAnswer}
+                      disabled={!input || validated !== null}
+                    >
+                      Valider
+                    </Button>
+                  </Grid>
+                )}
+                {validated !== null && (
+                  <Grid item>
+                    {validated === true && <CheckCircleIcon color="success" fontSize="large" />}
+                    {validated === false && <CancelIcon color="error" fontSize="large" />}
+                  </Grid>
+                )}
+              </Grid>
+
+              <Box mt={3} display="flex" justifyContent="center" gap={2} minHeight={48}>
+                {validated !== null ? (
+                  validated === false && params.mode === 1 ? (
+                    <Button variant="outlined" onClick={restartExercise}>
+                      Recommencer
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="outlined"
+                      onClick={newExercise}
+                    >
+                      {currentSeries === params.series ? "Afficher votre résultat" : "Exercice suivant"}
+                    </Button>
+                  )
+                ) : (
+                  <Box visibility="hidden">
+                    <Button variant="outlined">Placeholder</Button>
+                  </Box>
+                )}
+              </Box>
+
+              <Box mt={2}>
+                <Typography variant="subtitle1">
+                  {currentSeries} / {params.series}
+                </Typography>
+                <Typography variant="subtitle2">Temps écoulé: {time}s</Typography>
+              </Box>
+            </>
           )}
 
           {seriesFinished && (
@@ -120,6 +209,14 @@ export default function Exercises(): JSX.Element {
               <Typography variant="h5" gutterBottom>
                 Série terminée ! 🎉
               </Typography>
+
+              <Typography variant="subtitle1" gutterBottom>
+                Résultat: {correctCount} / {results.length} bonnes réponses
+              </Typography>
+              <Typography variant="subtitle2" gutterBottom>
+                Temps total: {time}s
+              </Typography>
+
               <Box mt={2}>
                 {results.map((res, idx) => (
                   <Box
@@ -135,80 +232,12 @@ export default function Exercises(): JSX.Element {
                     <Typography>
                       {res.a} + {res.b} = {res.answer}
                     </Typography>
-                    <Typography>
-                      Votre réponse: {res.userAnswer}
-                    </Typography>
-                    {res.correct ? (
-                      <CheckCircleIcon color="success" />
-                    ) : (
-                      <CancelIcon color="error" />
-                    )}
+                    <Typography>Votre réponse: {res.userAnswer}</Typography>
+                    {res.correct ? <CheckCircleIcon color="success" /> : <CancelIcon color="error" />}
                   </Box>
                 ))}
               </Box>
             </>
-          )}
-
-            {!seriesFinished && (
-          <NumericKeypad
-            onNumberClick={handleNumberClick}
-            onBackspace={handleBackspace}
-            onClear={handleClear}
-            disabled={seriesFinished || (validated !== null && params.mode === 1)}
-          />)}
-
-          {!seriesFinished && (
-            <Grid container spacing={2} justifyContent="center" alignItems="center" mt={2}>
-              {validated === null && (
-                <Grid item>
-                  <Button
-                    variant="contained"
-                    onClick={checkAnswer}
-                    disabled={!input || validated !== null}
-                  >
-                    Valider
-                  </Button>
-                </Grid>
-              )}
-              {validated !== null && (
-                <Grid item>
-                  {validated === true && <CheckCircleIcon color="success" fontSize="large" />}
-                  {validated === false && <CancelIcon color="error" fontSize="large" />}
-                </Grid>
-              )}
-            </Grid>
-          )}
-
-          {!seriesFinished && (
-            <Box mt={3} display="flex" justifyContent="center" gap={2} minHeight={48}>
-              {validated !== null ? (
-                validated === false && params.mode === 1 ? (
-                  <Button variant="outlined" onClick={restartExercise}>
-                    Recommencer
-                  </Button>
-                ) : (
-                  <Button
-                    variant="outlined"
-                    onClick={newExercise}
-                  >
-                    {currentSeries === params.series ? "Afficher votre résultat" : "Exercice suivant"}
-                  </Button>
-                )
-              ) : (
-                <Box visibility="hidden">
-                  <Button variant="outlined">Placeholder</Button>
-                </Box>
-              )}
-            </Box>
-          )}
-
-          {/* Affichage du suivi de la série */}
-          {params.series > 0 && !seriesFinished && (
-            <Box mt={2}>
-              <Typography variant="subtitle1">
-                {currentSeries} / {params.series}
-              </Typography>
-            </Box>
           )}
         </CardContent>
       </Card>
