@@ -5,15 +5,20 @@ import { useNavigate } from "react-router-dom";
 export default function IndexPage(): JSX.Element {
   const navigate = useNavigate();
 
-  const [maxd1, setMaxd1] = useState<number>(1);
-  const [maxd2, setMaxd2] = useState<number>(1);
-  const [maxres, setMaxres] = useState<number>(2);
+  // Paramètres minimum et maximum
+  const [minD1, setMinD1] = useState<number>(1);
+  const [maxD1, setMaxD1] = useState<number>(1);
+  const [minD2, setMinD2] = useState<number>(1);
+  const [maxD2, setMaxD2] = useState<number>(1);
+  const [minRes, setMinRes] = useState<number>(1);
+  const [maxRes, setMaxRes] = useState<number>(2);
+
   const [mode, setMode] = useState<number>(0); // 0 = auto passage, 1 = correction obligatoire
-  const [series, setSeries] = useState<number>(10); // Nouvelle valeur par défaut
+  const [series, setSeries] = useState<number>(10); // nombre d’exercices
 
   const handleStart = (): void => {
     navigate(
-      `/exercice?maxd1=${maxd1}&maxd2=${maxd2}&maxres=${maxres}&mode=${mode}&series=${series}`
+      `/exercice?mind1=${minD1}&maxd1=${maxD1}&mind2=${minD2}&maxd2=${maxD2}&minres=${minRes}&maxres=${maxRes}&mode=${mode}&series=${series}`
     );
   };
 
@@ -27,42 +32,55 @@ export default function IndexPage(): JSX.Element {
 
           <Stack spacing={2} mt={2}>
             <TextField
-              label="Chiffres max pour le premier nombre"
+              label="Chiffres min pour le premier nombre"
               type="number"
-              value={maxd1}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setMaxd1(Math.max(1, parseInt(e.target.value) || 1))
-              }
+              value={minD1}
+              onChange={(e) => setMinD1(Math.max(1, parseInt(e.target.value) || 1))}
               inputProps={{ min: 1 }}
             />
+            <TextField
+              label="Chiffres max pour le premier nombre"
+              type="number"
+              value={maxD1}
+              onChange={(e) => setMaxD1(Math.max(minD1, parseInt(e.target.value) || minD1))}
+              inputProps={{ min: minD1 }}
+            />
 
+            <TextField
+              label="Chiffres min pour le deuxième nombre"
+              type="number"
+              value={minD2}
+              onChange={(e) => setMinD2(Math.max(1, parseInt(e.target.value) || 1))}
+              inputProps={{ min: 1 }}
+            />
             <TextField
               label="Chiffres max pour le deuxième nombre"
               type="number"
-              value={maxd2}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setMaxd2(Math.max(1, parseInt(e.target.value) || 1))
-              }
-              inputProps={{ min: 1 }}
+              value={maxD2}
+              onChange={(e) => setMaxD2(Math.max(minD2, parseInt(e.target.value) || minD2))}
+              inputProps={{ min: minD2 }}
             />
 
+            <TextField
+              label="Chiffres min pour le résultat"
+              type="number"
+              value={minRes}
+              onChange={(e) => setMinRes(Math.max(1, parseInt(e.target.value) || 1))}
+              inputProps={{ min: 1 }}
+            />
             <TextField
               label="Chiffres max pour le résultat"
               type="number"
-              value={maxres}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setMaxres(Math.max(1, parseInt(e.target.value) || 1))
-              }
-              inputProps={{ min: 1 }}
+              value={maxRes}
+              onChange={(e) => setMaxRes(Math.max(minRes, parseInt(e.target.value) || minRes))}
+              inputProps={{ min: minRes }}
             />
 
             <TextField
-              label="Nombre d'exercices (series)"
+              label="Nombre d'exercices (série)"
               type="number"
               value={series}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setSeries(Math.max(1, parseInt(e.target.value) || 1))
-              }
+              onChange={(e) => setSeries(Math.max(1, parseInt(e.target.value) || 1))}
               inputProps={{ min: 1 }}
             />
 
@@ -70,9 +88,7 @@ export default function IndexPage(): JSX.Element {
               control={
                 <Switch
                   checked={mode === 1}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setMode(e.target.checked ? 1 : 0)
-                  }
+                  onChange={(e) => setMode(e.target.checked ? 1 : 0)}
                 />
               }
               label={

@@ -11,62 +11,111 @@ interface Exercise {
 }
 
 interface Params {
+  mind1: number;
   maxd1: number;
+  mind2: number;
   maxd2: number;
+  minres: number;
   maxres: number;
   mode: 0 | 1;
   series: number;
 }
+
+function minMaxFromDigits(digits: number): { min: number; max: number } {
+  if (digits < 1) digits = 1;
+  const min = 10 ** (digits - 1);
+  const max = 10 ** digits - 1;
+  return { min, max };
+}
+
 
 interface ExerciseResult extends Exercise {
   userAnswer: number | null;
   correct: boolean | null;
 }
 
-function randomNumberMaxDigits(maxDigits: number): number {
-  if (!maxDigits || maxDigits < 1) maxDigits = 1;
-  const min = 1;
-  const max = 10 ** maxDigits - 1;
+function randomNumberBetween(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-function generateExercise(maxd1: number, maxd2: number, maxres: number): Exercise {
+function generateExercise(
+  mind1: number, maxd1: number,
+  mind2: number, maxd2: number,
+  minres: number, maxres: number
+): Exercise {
   let a: number, b: number, sum: number;
+
+  const rangeA = minMaxFromDigits(mind1);
+  const rangeAMax = minMaxFromDigits(maxd1);
+  const rangeB = minMaxFromDigits(mind2);
+  const rangeBMax = minMaxFromDigits(maxd2);
+
   do {
-    a = randomNumberMaxDigits(maxd1);
-    b = randomNumberMaxDigits(maxd2);
+    a = randomNumberBetween(rangeA.min, rangeAMax.max);
+    b = randomNumberBetween(rangeB.min, rangeBMax.max);
     sum = a + b;
-  } while (sum.toString().length > maxres);
+  } while (sum.toString().length < minres || sum.toString().length > maxres);
+
   return { a, b, answer: sum };
 }
+
 
 export default function Exercises(): JSX.Element {
   const [exercise, setExercise] = useState<Exercise | null>(null);
   const [input, setInput] = useState<string>("");
   const [validated, setValidated] = useState<null | boolean>(null);
-  const [params, setParams] = useState<Params>({ maxd1: 1, maxd2: 1, maxres: 2, mode: 0, series: 0 });
+const [params, setParams] = useState<Params>({
+  mind1: 1,
+  maxd1: 1,
+  mind2: 1,
+  maxd2: 1,
+  minres: 1,
+  maxres: 2,
+  mode: 0,
+  series: 0
+});
+
   const [currentSeries, setCurrentSeries] = useState(0);
   const [results, setResults] = useState<ExerciseResult[]>([]);
   const [started, setStarted] = useState(false);
   const [time, setTime] = useState(0);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  useEffect(() => {
-    const searchParams = new URLSearchParams(window.location.search);
-    const maxd1 = parseInt(searchParams.get("maxd1") || "1", 10);
-    const maxd2 = parseInt(searchParams.get("maxd2") || "1", 10);
-    const maxres = parseInt(searchParams.get("maxres") || "2", 10);
-    const mode = parseInt(searchParams.get("mode") || "0", 10) as 0 | 1;
-    const series = parseInt(searchParams.get("series") || "0", 10);
-    setParams({ maxd1, maxd2, maxres, mode, series });
-  }, []);
+useEffect(() => {
+  const searchParams = new URLSearchParams(window.location.search);
+
+const mind1 = parseInt(searchParams.get("mind1") || "1", 10);
+const maxd1 = parseInt(searchParams.get("maxd1") || "1", 10);
+const mind2 = parseInt(searchParams.get("mind2") || "1", 10);
+const maxd2 = parseInt(searchParams.get("maxd2") || "1", 10);
+const minres = parseInt(searchParams.get("minres") || "1", 10);
+const maxres = parseInt(searchParams.get("maxres") || "2", 10);
+const mode = parseInt(searchParams.get("mode") || "0", 10) as 0 | 1;
+const series = parseInt(searchParams.get("series") || "0", 10);
+
+setParams({ mind1, maxd1, mind2, maxd2, minres, maxres, mode, series });
+
+
+console.log({
+  mind1,
+  maxd1,
+  mind2,
+  maxd2,
+  minres,
+  maxres,
+  mode,
+  series
+});
+
+}, []);
+
 
   const seriesFinished = params.series > 0 && currentSeries > params.series;
 
   const startSeries = () => {
     setStarted(true);
     setCurrentSeries(1);
-    setExercise(generateExercise(params.maxd1, params.maxd2, params.maxres));
+    setExercise(generateExercise(params.mind1, params.maxd1, params.mind2, params.maxd2, params.minres, params.maxres));
     setResults([]);
     setValidated(null);
     setInput("");
@@ -121,9 +170,7 @@ export default function Exercises(): JSX.Element {
       setCurrentSeries(prev => prev + 1); // passe à l’affichage final
       return;
     }
-
-    const ex = generateExercise(params.maxd1, params.maxd2, params.maxres);
-    setExercise(ex);
+    setExercise(generateExercise(params.mind1, params.maxd1, params.mind2, params.maxd2, params.minres, params.maxres));
     setInput("");
     setValidated(null);
     setCurrentSeries(prev => prev + 1);
@@ -141,7 +188,7 @@ export default function Exercises(): JSX.Element {
   const restartSeries = () => {
     setCurrentSeries(1);
     setResults([]);
-    setExercise(generateExercise(params.maxd1, params.maxd2, params.maxres));
+    setExercise(generateExercise(params.mind1, params.maxd1, params.mind2, params.maxd2, params.minres, params.maxres));
     setInput("");
     setValidated(null);
     setTime(0);
