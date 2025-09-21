@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Box, Card, CardContent, Typography, TextField, Button, Stack, FormControlLabel, Switch } from "@mui/material";
+import { Box, Card, CardContent, Typography, TextField, Button, Stack, FormControlLabel, Switch, ToggleButton, ToggleButtonGroup } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
 export default function IndexPage(): JSX.Element {
@@ -13,24 +13,26 @@ export default function IndexPage(): JSX.Element {
   const [minRes, setMinRes] = useState<number>(1);
   const [maxRes, setMaxRes] = useState<number>(2);
 
-  const [mode, setMode] = useState<number>(0); // 0 = auto passage, 1 = correction obligatoire
+  const [mode, setMode] = useState<number>(1); // 0 = auto passage, 1 = correction obligatoire
   const [series, setSeries] = useState<number>(10); // nombre d’exercices
+
+  const [operator, setOperator] = useState<"add" | "mul">("mul");
 
   const handleStart = (): void => {
     navigate(
-      `/exercice?mind1=${minD1}&maxd1=${maxD1}&mind2=${minD2}&maxd2=${maxD2}&minres=${minRes}&maxres=${maxRes}&mode=${mode}&series=${series}`
+      `/exercice?mind1=${minD1}&maxd1=${maxD1}&mind2=${minD2}&maxd2=${maxD2}&minres=${minRes}&maxres=${maxRes}&mode=${mode}&series=${series}&operator=${operator}`
     );
   };
 
   // Presets différents pour chaque prénom
   const handlePresetNolan = () => {
-    navigate(`/exercice?mind1=1&maxd1=1&mind2=2&maxd2=2&minres=2&maxres=3&mode=0&series=10`);
+    navigate(`/exercice?mind1=1&maxd1=1&mind2=2&maxd2=2&minres=2&maxres=3&mode=1&series=10&operator=add`);
   };
   const handlePresetLiam = () => {
-    navigate(`/exercice?mind1=1&maxd1=1&mind2=2&maxd2=2&minres=2&maxres=3&mode=0&series=10`);
+    navigate(`/exercice?mind1=1&maxd1=1&mind2=2&maxd2=2&minres=2&maxres=3&mode=1&series=10&operator=add`);
   };
   const handlePresetNathan = () => {
-    navigate(`/exercice?mind1=2&maxd2=3&mind2=2&maxd2=2&minres=2&maxres=3&mode=0&series=10`);
+    navigate(`/exercice?mind1=2&maxd1=2&mind2=2&maxd2=2&minres=2&maxres=3&mode=1&series=10&operator=add`);
   };
 
   return (
@@ -47,14 +49,14 @@ export default function IndexPage(): JSX.Element {
     <CardContent>
 
     <Stack direction="row" spacing={2} justifyContent="center" mb={3}>
-                <Button variant="contained" onClick={handlePresetNolan}>Nolan</Button>
-                <Button variant="contained" onClick={handlePresetLiam}>Liam</Button>
-                <Button variant="contained" onClick={handlePresetNathan}>Nathan</Button>
-              </Stack>
+      <Button variant="contained" onClick={handlePresetNolan}>Nolan</Button>
+      <Button variant="contained" onClick={handlePresetLiam}>Liam</Button>
+      <Button variant="contained" onClick={handlePresetNathan}>Nathan</Button>
+    </Stack>
 
-          <Typography variant="h4" gutterBottom>
-            Paramètres de l'exercice
-          </Typography>
+    <Typography variant="h4" gutterBottom>
+      Paramètres de l'exercice
+    </Typography>
 
 <Stack spacing={2} mt={2}>
   {/* Premier nombre */}
@@ -144,6 +146,21 @@ export default function IndexPage(): JSX.Element {
       inputProps={{ min: 1 }}
       fullWidth
     />
+  </Stack>
+
+  {/* Opérateur */}
+  <Stack direction="row" spacing={2} alignItems="center">
+    <Typography sx={{ minWidth: 250, textAlign: "right" }}>
+      Opération :
+    </Typography>
+    <ToggleButtonGroup
+      value={operator}
+      exclusive
+      onChange={(e, val) => val && setOperator(val)}
+    >
+      <ToggleButton value="add">Addition</ToggleButton>
+      <ToggleButton value="mul">Multiplication</ToggleButton>
+    </ToggleButtonGroup>
   </Stack>
 
   {/* Mode */}

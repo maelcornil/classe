@@ -20,6 +20,7 @@ interface Params {
   maxres: number;
   mode: 0 | 1;
   series: number;
+  operator: "add" | "mul";
 }
 
 interface ExerciseResult extends Exercise {
@@ -41,27 +42,29 @@ function randomNumberBetween(min: number, max: number): number {
 function generateExercise(
   mind1: number, maxd1: number,
   mind2: number, maxd2: number,
-  minres: number, maxres: number
+  minres: number, maxres: number,
+  operator: "add" | "mul"
 ): Exercise {
   const rangeA = minMaxFromDigits(mind1);
   const rangeAMax = minMaxFromDigits(maxd1);
   const rangeB = minMaxFromDigits(mind2);
   const rangeBMax = minMaxFromDigits(maxd2);
 
-  let a: number, b: number, sum: number;
+  let a: number, b: number, result: number;
   do {
     a = randomNumberBetween(rangeA.min, rangeAMax.max);
     b = randomNumberBetween(rangeB.min, rangeBMax.max);
-    sum = a + b;
-  } while (sum.toString().length < minres || sum.toString().length > maxres);
+    result = operator === "mul" ? a * b : a + b;
+  } while (result.toString().length < minres || result.toString().length > maxres);
 
-  return { a, b, answer: sum };
+  return { a, b, answer: result };
 }
 
 export default function Exercises(): JSX.Element {
   const [params, setParams] = useState<Params>({
     mind1: 1, maxd1: 1, mind2: 1, maxd2: 1,
-    minres: 1, maxres: 2, mode: 0, series: 0
+    minres: 1, maxres: 2, mode: 0, series: 0,
+    operator: "add"
   });
 
   const [exercise, setExercise] = useState<Exercise | null>(null);
@@ -88,7 +91,8 @@ export default function Exercises(): JSX.Element {
       minres: getInt("minres", 1),
       maxres: getInt("maxres", 2),
       mode: getInt("mode", 0) as 0 | 1,
-      series: getInt("series", 0)
+      series: getInt("series", 0),
+      operator: (searchParams.get("operator") as "add" | "mul") || "add"
     });
   }, []);
 
@@ -106,7 +110,10 @@ export default function Exercises(): JSX.Element {
     setExerciseAttempts(0);
     setCurrentSeries(1);
     setResults([]);
-    setExercise(generateExercise(params.mind1, params.maxd1, params.mind2, params.maxd2, params.minres, params.maxres));
+    setExercise(generateExercise(
+      params.mind1, params.maxd1, params.mind2, params.maxd2,
+      params.minres, params.maxres, params.operator
+    ));
     setInput("");
     setValidated(null);
     setTime(0);
@@ -143,7 +150,10 @@ export default function Exercises(): JSX.Element {
       return;
     }
 
-    setExercise(generateExercise(params.mind1, params.maxd1, params.mind2, params.maxd2, params.minres, params.maxres));
+    setExercise(generateExercise(
+      params.mind1, params.maxd1, params.mind2, params.maxd2,
+      params.minres, params.maxres, params.operator
+    ));
     setInput("");
     setExerciseAttempts(0);
     setValidated(null);
@@ -158,6 +168,8 @@ export default function Exercises(): JSX.Element {
   const correctCount = results.filter(r => r.correct).length;
   const firstTryCount = results.filter(r => r.correct && r.attempts === 1).length;
 
+  const operatorSymbol = params.operator === "mul" ? "×" : "+";
+
   return (
     <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", width: "100vw", height: "100vh" }}>
       <Card sx={{ p: 3, minWidth: 360, textAlign: "center" }}>
@@ -170,7 +182,7 @@ export default function Exercises(): JSX.Element {
           {started && !seriesFinished && exercise && (
             <>
               <Typography variant="h4" gutterBottom>
-                {exercise.a} + {exercise.b} = {input || " "}
+                {exercise.a} {operatorSymbol} {exercise.b} = {input || " "}
               </Typography>
 
               <NumericKeypad
@@ -228,7 +240,7 @@ export default function Exercises(): JSX.Element {
               <Box mt={2} sx={{ maxHeight: "40vh", overflowY: "auto", pr: 1 }}>
                 {results.map((res, idx) => (
                   <Box key={idx} display="flex" justifyContent="space-between" alignItems="center" mb={1} p={1} border="1px solid #ddd" borderRadius={2}>
-                    <Typography>{res.a} + {res.b} = {res.answer}</Typography>
+                    <Typography>{res.a} {operatorSymbol} {res.b} = {res.answer}</Typography>
 
                     {params.mode === 0 && <Typography>Votre réponse: {res.userAnswer}</Typography>}
                     {params.mode === 1 && res.attempts > 1 && <Typography>{res.attempts - 1} erreur(s)</Typography>}
