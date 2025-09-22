@@ -3,6 +3,7 @@ import { Box, Card, CardContent, Typography, Grid, Button } from "@mui/material"
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
 import NumericKeypad from "./NumericKeypad";
+import { useNavigate } from "react-router-dom";
 
 // Types
 interface Exercise {
@@ -77,6 +78,7 @@ export default function Exercises(): JSX.Element {
   const [exerciseAttempts, setExerciseAttempts] = useState(0);
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const navigate = useNavigate();
 
   // Charger les paramètres depuis l'URL
   useEffect(() => {
@@ -252,7 +254,11 @@ export default function Exercises(): JSX.Element {
                 ))}
               </Box>
 
-              <Box mt={3}><Button variant="contained" onClick={restartSeries}>Recommencer</Button></Box>
+              <Box mt={3}>
+                <Button variant="contained" onClick={restartSeries}>Recommencer</Button>
+                &nbsp;
+                <Button variant="contained" onClick={() => navigate("/")}>Changer</Button>
+              </Box>
             </>
           )}
 
