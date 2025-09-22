@@ -7,6 +7,8 @@ interface NumericKeypadProps {
   onBackspace: () => void;
   onClear: () => void;
   disabled?: boolean;
+  showClear?: boolean;
+  showBack?: boolean;
 }
 
 export default function NumericKeypad({
@@ -14,6 +16,9 @@ export default function NumericKeypad({
   onBackspace,
   onClear,
   disabled = false,
+  showClear = true,
+  showBack = true,
+
 }: NumericKeypadProps): JSX.Element {
   const keypad: (number | "back" | "clear")[][] = [
     [1, 2, 3],
@@ -29,23 +34,27 @@ export default function NumericKeypad({
           {row.map((key) => (
             <Grid item key={String(key)}>
               {key === "back" ? (
-                <Button
-                  onClick={onBackspace}
-                  variant="outlined"
-                  sx={{ minWidth: 64, height: 48 }}
-                  disabled={disabled}
-                >
-                  <BackspaceIcon />
-                </Button>
+                  showBack ? (
+                      <Button
+                          onClick={onBackspace}
+                          variant="outlined"
+                          sx={{ minWidth: 64, height: 48 }}
+                          disabled={disabled}
+                      >
+                        <BackspaceIcon />
+                      </Button>
+                  ) : <Box sx={{ minWidth: 64, height: 48 }} />
               ) : key === "clear" ? (
-                <Button
-                  onClick={onClear}
-                  variant="outlined"
-                  sx={{ minWidth: 64, height: 48 }}
-                  disabled={disabled}
-                >
-                  <ClearIcon />
-                </Button>
+                  showClear ? (
+                      <Button
+                          onClick={onClear}
+                          variant="outlined"
+                          sx={{ minWidth: 64, height: 48 }}
+                          disabled={disabled}
+                      >
+                        <ClearIcon />
+                      </Button>
+                  ) : <Box sx={{ minWidth: 64, height: 48 }} />
               ) : (
                 <Button
                   onClick={() => onNumberClick(key as number)}

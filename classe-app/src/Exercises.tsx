@@ -232,6 +232,7 @@ export default function Exercises(): JSX.Element {
                 onBackspace={handleBackspace}
                 onClear={handleClear}
                 disabled={validated !== null}
+                showBack={params.line !== 0}
               />
 
               <Grid container spacing={2} justifyContent="center" alignItems="center" mt={2}>
