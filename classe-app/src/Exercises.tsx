@@ -22,6 +22,7 @@ interface Params {
   mode: 0 | 1;
   series: number;
   operator: "add" | "mul" | "sub";
+  line: 0 | 1;
 }
 
 interface ExerciseResult extends Exercise {
@@ -73,7 +74,7 @@ export default function Exercises(): JSX.Element {
   const [params, setParams] = useState<Params>({
     mind1: 1, maxd1: 1, mind2: 1, maxd2: 1,
     minres: 1, maxres: 2, mode: 0, series: 0,
-    operator: "add"
+    operator: "add", line: 1
   });
 
   const [exercise, setExercise] = useState<Exercise | null>(null);
@@ -102,7 +103,8 @@ export default function Exercises(): JSX.Element {
       maxres: getInt("maxres", 2),
       mode: getInt("mode", 0) as 0 | 1,
       series: getInt("series", 0),
-      operator: (searchParams.get("operator") as "add" | "mul" | "sub") || "add"
+      operator: (searchParams.get("operator") as "add" | "mul" | "sub") || "add",
+      line: getInt("line", 1) as 0 | 1
     });
   }, []);
 
@@ -170,7 +172,10 @@ export default function Exercises(): JSX.Element {
     setCurrentSeries(prev => prev + 1);
   };
 
-  const handleNumberClick = (num: number) => setInput(prev => prev + num.toString());
+  const handleNumberClick = (num: number) => {
+    setInput(prev => params.line === 0 ? num.toString() + prev : prev + num.toString());
+  };
+
   const handleBackspace = () => setInput(prev => prev.slice(0, -1));
   const handleClear = () => setInput("");
   const restartExercise = () => { setInput(""); setValidated(null); };
@@ -193,9 +198,34 @@ export default function Exercises(): JSX.Element {
 
           {started && !seriesFinished && exercise && (
             <>
-              <Typography translate="no" variant="h4" gutterBottom>
-                {exercise.a} {operatorSymbol} {exercise.b} = {input || " "}
-              </Typography>
+              {params.line === 1 ? (
+                  // 👇 Affichage en ligne (comportement actuel)
+                  <Typography translate="no" variant="h4" gutterBottom>
+                    {exercise.a} {operatorSymbol} {exercise.b} = {input || " "}
+                  </Typography>
+              ) : (
+                  // 👇 Affichage posé sur 2 lignes
+                  <Box display="inline-block" textAlign="right" mb={2}>
+                    <Typography variant="h4" translate="no">
+                      {exercise.a}
+                    </Typography>
+                    <Typography variant="h4" translate="no">
+                      {operatorSymbol} {exercise.b}
+                    </Typography>
+                    <Box
+                        sx={{
+                          borderBottom: "2px solid black",
+                          width: "100%",
+                          my: 1
+                        }}
+                    />
+                    <Typography variant="h4" translate="no">
+                      {input || <span>&nbsp;</span>}
+                    </Typography>
+
+                  </Box>
+              )}
+
 
               <NumericKeypad
                 onNumberClick={handleNumberClick}
