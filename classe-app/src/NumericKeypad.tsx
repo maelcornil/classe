@@ -1,4 +1,3 @@
-import React from "react";
 import { Box, Grid, Button } from "@mui/material";
 import BackspaceIcon from "@mui/icons-material/Backspace";
 import ClearIcon from "@mui/icons-material/Clear";

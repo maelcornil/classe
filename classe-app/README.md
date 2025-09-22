@@ -1,5 +1,12 @@
+# Dev
+
 npm run dev
+
 http://localhost:5173/
+
+# Prod
+
+npm run build
 
 # Netlify
 

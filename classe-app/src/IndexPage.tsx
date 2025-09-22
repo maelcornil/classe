@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Box, Card, CardContent, Typography, TextField, Button, Stack, FormControlLabel, Switch, ToggleButton, ToggleButtonGroup } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
@@ -156,7 +156,7 @@ export default function IndexPage(): JSX.Element {
     <ToggleButtonGroup
       value={operator}
       exclusive
-      onChange={(e, val) => val && setOperator(val)}
+      onChange={(_e, val) => val && setOperator(val)}
     >
       <ToggleButton value="add">Addition</ToggleButton>
       <ToggleButton value="mul">Multiplication</ToggleButton>
