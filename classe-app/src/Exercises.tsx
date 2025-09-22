@@ -219,9 +219,9 @@ export default function Exercises(): JSX.Element {
               <Box mt={3} display="flex" justifyContent="center" gap={2} minHeight={48}>
                 {validated !== null ? (
                   validated === false && params.mode === 1 ? (
-                    <Button variant="outlined" onClick={restartExercise}>Recommencer</Button>
+                    <Button variant="contained" onClick={restartExercise}>Recommencer</Button>
                   ) : (
-                    <Button variant="outlined" onClick={newExercise}>
+                    <Button variant="contained" onClick={newExercise}>
                       {currentSeries === params.series ? "Afficher votre résultat" : "Exercice suivant"}
                     </Button>
                   )
@@ -266,11 +266,13 @@ export default function Exercises(): JSX.Element {
 
               <Box mt={3}>
                 <Button variant="contained" onClick={restartSeries}>Recommencer</Button>
-                &nbsp;
-                <Button variant="contained" onClick={() => navigate("/")}>Changer</Button>
               </Box>
             </>
           )}
+
+          <Box mt={3}>
+            <Button variant="outlined" onClick={() => navigate("/")}>Changer d'exercice</Button>
+          </Box>
 
         </CardContent>
       </Card>
