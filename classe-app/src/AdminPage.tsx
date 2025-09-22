@@ -38,14 +38,14 @@ export default function AdminPage(): JSX.Element {
   <Card sx={{ p: 3, minWidth: 360, textAlign: "center" }}>
     <CardContent>
 
-    <Typography variant="h4" gutterBottom>
+    <Typography translate="no" variant="h4" gutterBottom>
       Paramètres de l'exercice
     </Typography>
 
 <Stack spacing={2} mt={2}>
   {/* Premier nombre */}
   <Stack direction="row" spacing={2} alignItems="center">
-    <Typography sx={{ minWidth: 250, textAlign: "right" }}>
+    <Typography translate="no" sx={{ minWidth: 250, textAlign: "right" }}>
       Premier nombre :
     </Typography>
     <TextField
@@ -70,7 +70,7 @@ export default function AdminPage(): JSX.Element {
 
   {/* Deuxième nombre */}
   <Stack direction="row" spacing={2} alignItems="center">
-    <Typography sx={{ minWidth: 250, textAlign: "right" }}>
+    <Typography translate="no" sx={{ minWidth: 250, textAlign: "right" }}>
       Deuxième nombre :
     </Typography>
     <TextField
@@ -95,7 +95,7 @@ export default function AdminPage(): JSX.Element {
 
   {/* Résultat */}
   <Stack direction="row" spacing={2} alignItems="center">
-    <Typography sx={{ minWidth: 250, textAlign: "right" }}>
+    <Typography translate="no" sx={{ minWidth: 250, textAlign: "right" }}>
       Résultat :
     </Typography>
     <TextField
@@ -120,7 +120,7 @@ export default function AdminPage(): JSX.Element {
 
   {/* Nombre d'exercices */}
   <Stack direction="row" spacing={2} alignItems="center">
-    <Typography sx={{ minWidth: 250, textAlign: "right" }}>
+    <Typography translate="no" sx={{ minWidth: 250, textAlign: "right" }}>
       Nombre d'exercices :
     </Typography>
     <TextField
@@ -134,7 +134,7 @@ export default function AdminPage(): JSX.Element {
 
   {/* Opérateur */}
   <Stack direction="row" spacing={2} alignItems="center">
-    <Typography sx={{ minWidth: 250, textAlign: "right" }}>
+    <Typography translate="no" sx={{ minWidth: 250, textAlign: "right" }}>
       Opération :
     </Typography>
     <ToggleButtonGroup

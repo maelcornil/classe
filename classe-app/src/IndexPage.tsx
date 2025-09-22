@@ -29,7 +29,7 @@ export default function IndexPage(): JSX.Element {
           <CardContent>
             {presetGroups.map((group) => (
                 <Box key={group.label} mb={3}>
-                  <Typography variant="h6" gutterBottom>{group.label}</Typography>
+                  <Typography translate="no" variant="h6" gutterBottom>{group.label}</Typography>
                   <Stack direction="column" spacing={2}>
                     {group.presets.map((preset) => (
                         <Button key={preset.label} variant="contained" onClick={() => navigate(preset.url)}>

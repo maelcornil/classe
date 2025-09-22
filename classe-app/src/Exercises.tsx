@@ -183,7 +183,7 @@ export default function Exercises(): JSX.Element {
 
           {started && !seriesFinished && exercise && (
             <>
-              <Typography variant="h4" gutterBottom>
+              <Typography translate="no" variant="h4" gutterBottom>
                 {exercise.a} {operatorSymbol} {exercise.b} = {input || " "}
               </Typography>
 
@@ -221,23 +221,23 @@ export default function Exercises(): JSX.Element {
               </Box>
 
               <Box mt={2}>
-                <Typography variant="subtitle1">{currentSeries} / {params.series}</Typography>
-                <Typography variant="subtitle2">Temps écoulé: {time}s</Typography>
+                <Typography translate="no" variant="subtitle1">{currentSeries} / {params.series}</Typography>
+                <Typography translate="no" variant="subtitle2">Temps écoulé: {time}s</Typography>
               </Box>
             </>
           )}
 
           {seriesFinished && (
             <>
-              <Typography variant="h5" gutterBottom>Série terminée ! 🎉</Typography>
+              <Typography translate="no" variant="h5" gutterBottom>Série terminée ! 🎉</Typography>
 
-              <Typography variant="subtitle1" gutterBottom>
+              <Typography translate="no" variant="subtitle1" gutterBottom>
                 {params.mode === 1
                   ? `Résultat: ${firstTryCount} / ${results.length} réussi(s) au premier essai`
                   : `Résultat: ${correctCount} / ${results.length} bonnes réponses`}
               </Typography>
 
-              <Typography variant="subtitle2" gutterBottom>Temps total: {time}s</Typography>
+              <Typography translate="no" variant="subtitle2" gutterBottom>Temps total: {time}s</Typography>
 
               <Box mt={2} sx={{ maxHeight: "40vh", overflowY: "auto", pr: 1 }}>
                 {results.map((res, idx) => (
