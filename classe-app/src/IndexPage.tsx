@@ -1,4 +1,4 @@
-import { Box, Card, CardContent, Button, Grid, Typography } from "@mui/material";
+import { Box, Card, CardContent, Button, Grid, Typography, darken } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
 export default function IndexPage(): JSX.Element {
@@ -49,15 +49,25 @@ export default function IndexPage(): JSX.Element {
                                 <Grid item xs={12} key={preset.label}>
                                     <Button
                                         variant="contained"
-                                        sx={{
-                                            width: "100%",
-                                            py: 2,
-                                            backgroundColor: group.color,
-                                            color: "#fff",
-                                            fontWeight: 600,
-                                            fontSize: 18
-                                        }}
                                         onClick={() => navigate(preset.url)}
+                                        sx={(theme) => {
+                                            const [paletteKey, shade] = group.color.split(".");
+                                            // @ts-ignore
+                                            const bgColor = theme.palette[paletteKey][shade];
+                                            return {
+                                                width: "100%",
+                                                py: 2,
+                                                backgroundColor: bgColor,
+                                                color: "#fff",
+                                                fontWeight: 600,
+                                                fontSize: 18,
+                                                textTransform: "none",
+                                                borderRadius: 2,
+                                                "&:hover": {
+                                                    backgroundColor: darken(bgColor, 0.2), // assombrit la couleur au hover
+                                                },
+                                            };
+                                        }}
                                     >
                                         {preset.label.split("\n").map((line, i) => (
                                             <span key={i}>
