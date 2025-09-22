@@ -193,7 +193,7 @@ export default function Exercises(): JSX.Element {
         <CardContent>
 
           {!started && (
-            <Button variant="contained" onClick={startSeries}>Démarrer</Button>
+            <Button variant="contained" onClick={startSeries} sx={{ minHeight: 48 }}>Démarrer</Button>
           )}
 
           {started && !seriesFinished && exercise && (
@@ -238,11 +238,11 @@ export default function Exercises(): JSX.Element {
               <Grid container spacing={2} justifyContent="center" alignItems="center" mt={2}>
                 {validated === null ? (
                   <Grid item>
-                    <Button variant="contained" onClick={checkAnswer} disabled={!input}>Valider</Button>
+                    <Button variant="contained" onClick={checkAnswer} disabled={!input} sx={{ minHeight: 48 }}>Valider</Button>
                   </Grid>
                 ) : (
                   <Grid item>
-                    {validated ? <CheckCircleIcon color="success" fontSize="large" /> : <CancelIcon color="error" fontSize="large" />}
+                    {validated ? <CheckCircleIcon sx={{ minHeight: 48 }} color="success" fontSize="large" /> : <CancelIcon color="error" fontSize="large" />}
                   </Grid>
                 )}
               </Grid>
@@ -250,14 +250,14 @@ export default function Exercises(): JSX.Element {
               <Box mt={3} display="flex" justifyContent="center" gap={2} minHeight={48}>
                 {validated !== null ? (
                   validated === false && params.mode === 1 ? (
-                    <Button variant="contained" onClick={restartExercise}>Recommencer</Button>
+                    <Button sx={{ minHeight: 48 }} variant="contained" onClick={restartExercise}>Recommencer</Button>
                   ) : (
-                    <Button variant="contained" onClick={newExercise}>
+                    <Button sx={{ minHeight: 48 }} variant="contained" onClick={newExercise}>
                       {currentSeries === params.series ? "Afficher votre résultat" : "Exercice suivant"}
                     </Button>
                   )
                 ) : (
-                  <Box visibility="hidden"><Button variant="outlined">Placeholder</Button></Box>
+                  <Box visibility="hidden"><Button sx={{ minHeight: 48 }} variant="outlined">Placeholder</Button></Box>
                 )}
               </Box>
 
@@ -296,13 +296,13 @@ export default function Exercises(): JSX.Element {
               </Box>
 
               <Box mt={3}>
-                <Button variant="contained" onClick={restartSeries}>Recommencer</Button>
+                <Button variant="contained" sx={{ minHeight: 48 }} onClick={restartSeries}>Recommencer</Button>
               </Box>
             </>
           )}
 
           <Box mt={3}>
-            <Button variant="outlined" onClick={() => navigate("/")}>Changer d'exercice</Button>
+            <Button variant="outlined" sx={{ minHeight: 48 }} onClick={() => navigate("/")}>Changer d'exercice</Button>
           </Box>
 
         </CardContent>
