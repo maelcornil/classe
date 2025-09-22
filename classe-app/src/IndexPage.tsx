@@ -1,6 +1,42 @@
 import { Box, Card, CardContent, Button, Grid, Typography, darken } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
+// Composant carré blanc uniforme, sans bordure et avec marge
+function Square() {
+    return (
+        <span
+            style={{
+                display: "inline-block",
+                width: 20,
+                height: 20,
+                backgroundColor: "#fff",
+                marginLeft: 1,
+                marginRight: 1,   // un peu d'espace à droite
+                verticalAlign: "middle",
+            }}
+        />
+    );
+}
+
+// Fonction pour transformer les labels avec des carrés
+function renderLabel(label: string) {
+    return label.split("").map((char, i) => {
+        if (char === "⬜") {
+            return <Square key={i} />;
+        }
+        // Ajouter un petit espace autour des autres caractères
+        return (
+            <span
+                key={i}
+                style={{ marginLeft: 2, marginRight: 2 }}
+            >
+        {char}
+      </span>
+        );
+    });
+}
+
+
 export default function IndexPage(): JSX.Element {
     const navigate = useNavigate();
 
@@ -64,17 +100,12 @@ export default function IndexPage(): JSX.Element {
                                                 textTransform: "none",
                                                 borderRadius: 2,
                                                 "&:hover": {
-                                                    backgroundColor: darken(bgColor, 0.2), // assombrit la couleur au hover
+                                                    backgroundColor: darken(bgColor, 0.2),
                                                 },
                                             };
                                         }}
                                     >
-                                        {preset.label.split("\n").map((line, i) => (
-                                            <span key={i}>
-                        {line}
-                                                <br />
-                      </span>
-                                        ))}
+                                        {renderLabel(preset.label)}
                                     </Button>
                                 </Grid>
                             ))}
