@@ -15,6 +15,15 @@ export default function IndexPage(): JSX.Element {
       ]
     },
     {
+      label: "Soustractions",
+      presets: [
+        { label: "? - ? = ?", url: `/exercice?mind1=1&maxd1=1&mind2=1&maxd2=1&minres=1&maxres=1&mode=1&series=10&operator=sub` },
+        { label: "?? - ? = ??", url: `/exercice?mind1=2&maxd1=2&mind2=2&maxd2=2&minres=1&maxres=2&mode=1&series=10&operator=sub` },
+        { label: "?? - ?? = ??", url: `/exercice?mind1=2&maxd1=2&mind2=2&maxd2=2&minres=1&maxres=2&mode=1&series=10&operator=sub` },
+        { label: "??? - ??? = ???", url: `/exercice?mind1=3&maxd1=3&mind2=1&maxd2=3&minres=1&maxres=3&mode=1&series=10&operator=sub` },
+      ]
+    },
+    {
       label: "Multiplications",
       presets: [
         { label: "? x ? = ??", url: `/exercice?mind1=1&maxd1=1&mind2=1&maxd2=1&minres=1&maxres=2&mode=1&series=10&operator=mul` },

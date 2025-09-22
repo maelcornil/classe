@@ -21,7 +21,7 @@ interface Params {
   maxres: number;
   mode: 0 | 1;
   series: number;
-  operator: "add" | "mul";
+  operator: "add" | "mul" | "sub";
 }
 
 interface ExerciseResult extends Exercise {
@@ -44,7 +44,7 @@ function generateExercise(
   mind1: number, maxd1: number,
   mind2: number, maxd2: number,
   minres: number, maxres: number,
-  operator: "add" | "mul"
+  operator: "add" | "mul" | "sub"
 ): Exercise {
   const rangeA = minMaxFromDigits(mind1);
   const rangeAMax = minMaxFromDigits(maxd1);
@@ -55,7 +55,15 @@ function generateExercise(
   do {
     a = randomNumberBetween(rangeA.min, rangeAMax.max);
     b = randomNumberBetween(rangeB.min, rangeBMax.max);
-    result = operator === "mul" ? a * b : a + b;
+
+       if (operator === "mul") {
+         result = a * b;
+       } else if (operator === "sub") {
+         if (b > a) [a, b] = [b, a];
+         result = a - b;
+       } else {
+         result = a + b;
+       }
   } while (result.toString().length < minres || result.toString().length > maxres);
 
   return { a, b, answer: result };
@@ -94,7 +102,7 @@ export default function Exercises(): JSX.Element {
       maxres: getInt("maxres", 2),
       mode: getInt("mode", 0) as 0 | 1,
       series: getInt("series", 0),
-      operator: (searchParams.get("operator") as "add" | "mul") || "add"
+      operator: (searchParams.get("operator") as "add" | "mul" | "sub") || "add"
     });
   }, []);
 
@@ -170,7 +178,9 @@ export default function Exercises(): JSX.Element {
   const correctCount = results.filter(r => r.correct).length;
   const firstTryCount = results.filter(r => r.correct && r.attempts === 1).length;
 
-  const operatorSymbol = params.operator === "mul" ? "×" : "+";
+  const operatorSymbol =
+     params.operator === "mul" ? "×" :
+     params.operator === "sub" ? "−" : "+";
 
   return (
     <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", width: "100vw", height: "100vh" }}>
