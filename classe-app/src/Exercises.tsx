@@ -2,8 +2,14 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { Box, Card, CardContent, Typography, Grid, Button } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
+import PlayArrowIcon from "@mui/icons-material/PlayArrow";
+import ReplayIcon from "@mui/icons-material/Replay";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import RefreshIcon from "@mui/icons-material/Refresh";
+import HomeIcon from "@mui/icons-material/Home";
 import NumericKeypad from "./NumericKeypad";
 import { useNavigate } from "react-router-dom";
+import HourglassEmptyIcon from "@mui/icons-material/HourglassEmpty";
 
 // Types
 interface Exercise {
@@ -67,10 +73,9 @@ function generateExercise(
       if (b > a) [a, b] = [b, a];
       result = a - b;
     } else if (operator === "div") {
-      // éviter div par zéro
       if (b === 0) b = 1;
       result = Math.floor(a / b);
-      a = result * b; // garantir que a / b est entier
+      a = result * b;
     } else {
       result = a + b;
     }
@@ -178,9 +183,9 @@ export default function Exercises(): JSX.Element {
 
     let expected: number;
     if (params.hole === 0) {
-      expected = exercise.answer; // trouver le résultat
+      expected = exercise.answer;
     } else {
-      expected = exercise.b; // trouver b
+      expected = exercise.b;
     }
 
     const isCorrect = userVal === expected;
@@ -275,6 +280,7 @@ export default function Exercises(): JSX.Element {
                     variant="contained"
                     onClick={startSeries}
                     sx={{ minHeight: 48 }}
+                    startIcon={<PlayArrowIcon />}
                 >
                   Démarrer
                 </Button>
@@ -331,6 +337,7 @@ export default function Exercises(): JSX.Element {
                               onClick={checkAnswer}
                               disabled={!input}
                               sx={{ minHeight: 48 }}
+                              startIcon={<CheckCircleIcon />}
                           >
                             Valider
                           </Button>
@@ -363,6 +370,7 @@ export default function Exercises(): JSX.Element {
                                 sx={{ minHeight: 48 }}
                                 variant="contained"
                                 onClick={restartExercise}
+                                startIcon={<ReplayIcon />}
                             >
                               Recommencer
                             </Button>
@@ -371,6 +379,7 @@ export default function Exercises(): JSX.Element {
                                 sx={{ minHeight: 48 }}
                                 variant="contained"
                                 onClick={newExercise}
+                                startIcon={<ArrowForwardIcon />}
                             >
                               {currentSeries === params.series
                                   ? "Afficher votre résultat"
@@ -390,9 +399,11 @@ export default function Exercises(): JSX.Element {
                     <Typography translate="no" variant="subtitle1">
                       {currentSeries} / {params.series}
                     </Typography>
-                    <Typography translate="no" variant="subtitle2">
-                      Temps écoulé: {time}s
+                    <Typography mt={2} translate="no" variant="subtitle2" display="flex" alignItems="center" justifyContent="center" gap={1}>
+                      <HourglassEmptyIcon fontSize="small" />
+                      {time}s
                     </Typography>
+
                   </Box>
                 </>
             )}
@@ -454,6 +465,7 @@ export default function Exercises(): JSX.Element {
                         variant="contained"
                         sx={{ minHeight: 48 }}
                         onClick={restartSeries}
+                        startIcon={<RefreshIcon />}
                     >
                       Recommencer
                     </Button>
@@ -466,6 +478,7 @@ export default function Exercises(): JSX.Element {
                   variant="outlined"
                   sx={{ minHeight: 48 }}
                   onClick={() => navigate("/")}
+                  startIcon={<HomeIcon />}
               >
                 Changer d'exercice
               </Button>
