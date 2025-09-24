@@ -23,6 +23,7 @@ interface Params {
   series: number;
   operator: "add" | "mul" | "sub";
   line: 0 | 1;
+  hole: 0 | 1;   // 👈 ajouté
 }
 
 interface ExerciseResult extends Exercise {
@@ -42,10 +43,10 @@ function randomNumberBetween(min: number, max: number): number {
 }
 
 function generateExercise(
-  mind1: number, maxd1: number,
-  mind2: number, maxd2: number,
-  minres: number, maxres: number,
-  operator: "add" | "mul" | "sub"
+    mind1: number, maxd1: number,
+    mind2: number, maxd2: number,
+    minres: number, maxres: number,
+    operator: "add" | "mul" | "sub"
 ): Exercise {
   const rangeA = minMaxFromDigits(mind1);
   const rangeAMax = minMaxFromDigits(maxd1);
@@ -57,14 +58,14 @@ function generateExercise(
     a = randomNumberBetween(rangeA.min, rangeAMax.max);
     b = randomNumberBetween(rangeB.min, rangeBMax.max);
 
-       if (operator === "mul") {
-         result = a * b;
-       } else if (operator === "sub") {
-         if (b > a) [a, b] = [b, a];
-         result = a - b;
-       } else {
-         result = a + b;
-       }
+    if (operator === "mul") {
+      result = a * b;
+    } else if (operator === "sub") {
+      if (b > a) [a, b] = [b, a];
+      result = a - b;
+    } else {
+      result = a + b;
+    }
   } while (result.toString().length < minres || result.toString().length > maxres);
 
   return { a, b, answer: result };
@@ -74,7 +75,7 @@ export default function Exercises(): JSX.Element {
   const [params, setParams] = useState<Params>({
     mind1: 1, maxd1: 1, mind2: 1, maxd2: 1,
     minres: 1, maxres: 2, mode: 0, series: 0,
-    operator: "add", line: 1
+    operator: "add", line: 1, hole: 0
   });
 
   const [exercise, setExercise] = useState<Exercise | null>(null);
@@ -104,7 +105,8 @@ export default function Exercises(): JSX.Element {
       mode: getInt("mode", 0) as 0 | 1,
       series: getInt("series", 0),
       operator: (searchParams.get("operator") as "add" | "mul" | "sub") || "add",
-      line: getInt("line", 1) as 0 | 1
+      line: getInt("line", 1) as 0 | 1,
+      hole: getInt("hole", 0) as 0 | 1   // 👈 récupéré
     });
   }, []);
 
@@ -123,8 +125,8 @@ export default function Exercises(): JSX.Element {
     setCurrentSeries(1);
     setResults([]);
     setExercise(generateExercise(
-      params.mind1, params.maxd1, params.mind2, params.maxd2,
-      params.minres, params.maxres, params.operator
+        params.mind1, params.maxd1, params.mind2, params.maxd2,
+        params.minres, params.maxres, params.operator
     ));
     setInput("");
     setValidated(null);
@@ -138,7 +140,15 @@ export default function Exercises(): JSX.Element {
   const checkAnswer = () => {
     if (!exercise || !input) return;
     const userVal = parseInt(input, 10);
-    const isCorrect = userVal === exercise.answer;
+
+    let expected: number;
+    if (params.hole === 0) {
+      expected = exercise.answer; // trouver le résultat
+    } else {
+      expected = exercise.b;      // trouver b
+    }
+
+    const isCorrect = userVal === expected;
     setValidated(isCorrect);
     setExerciseAttempts(prev => prev + 1);
 
@@ -163,8 +173,8 @@ export default function Exercises(): JSX.Element {
     }
 
     setExercise(generateExercise(
-      params.mind1, params.maxd1, params.mind2, params.maxd2,
-      params.minres, params.maxres, params.operator
+        params.mind1, params.maxd1, params.mind2, params.maxd2,
+        params.minres, params.maxres, params.operator
     ));
     setInput("");
     setExerciseAttempts(0);
@@ -184,129 +194,130 @@ export default function Exercises(): JSX.Element {
   const firstTryCount = results.filter(r => r.correct && r.attempts === 1).length;
 
   const operatorSymbol =
-     params.operator === "mul" ? "×" :
-     params.operator === "sub" ? "−" : "+";
+      params.operator === "mul" ? "×" :
+          params.operator === "sub" ? "−" : "+";
 
   return (
-    <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", width: "100vw", height: "100vh" }}>
-      <Card sx={{ p: 3, minWidth: 360, textAlign: "center" }}>
-        <CardContent>
+      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", width: "100vw", height: "100vh" }}>
+        <Card sx={{ p: 3, minWidth: 360, textAlign: "center" }}>
+          <CardContent>
 
-          {!started && (
-            <Button variant="contained" onClick={startSeries} sx={{ minHeight: 48 }}>Démarrer</Button>
-          )}
+            {!started && (
+                <Button variant="contained" onClick={startSeries} sx={{ minHeight: 48 }}>Démarrer</Button>
+            )}
 
-          {started && !seriesFinished && exercise && (
-            <>
-              {params.line === 1 ? (
-                  // 👇 Affichage en ligne (comportement actuel)
-                  <Typography translate="no" variant="h4" gutterBottom>
-                    {exercise.a} {operatorSymbol} {exercise.b} = {input || " "}
-                  </Typography>
-              ) : (
-                  // 👇 Affichage posé sur 2 lignes
-                  <Box display="inline-block" textAlign="right" mb={2}>
-                    <Typography variant="h4" translate="no">
-                      {exercise.a}
-                    </Typography>
-                    <Typography variant="h4" translate="no">
-                      {operatorSymbol} {exercise.b}
-                    </Typography>
-                    <Box
-                        sx={{
-                          borderBottom: "2px solid black",
-                          width: "100%",
-                          my: 1
-                        }}
-                    />
-                    <Typography variant="h4" translate="no">
-                      {input || <span>&nbsp;</span>}
-                    </Typography>
-
-                  </Box>
-              )}
+            {started && !seriesFinished && exercise && (
+                <>
+                  {params.line === 1 ? (
+                      <Typography translate="no" variant="h4" gutterBottom>
+                        {exercise.a} {operatorSymbol}{" "}
+                        {params.hole === 1 ? (input || "?") : exercise.b} ={" "}
+                        {params.hole === 0 ? (input || " ") : exercise.answer}
+                      </Typography>
 
 
-              <NumericKeypad
-                onNumberClick={handleNumberClick}
-                onBackspace={handleBackspace}
-                onClear={handleClear}
-                disabled={validated !== null}
-                showBack={params.line !== 0}
-              />
-
-              <Grid container spacing={2} justifyContent="center" alignItems="center" mt={2}>
-                {validated === null ? (
-                  <Grid item>
-                    <Button variant="contained" onClick={checkAnswer} disabled={!input} sx={{ minHeight: 48 }}>Valider</Button>
-                  </Grid>
-                ) : (
-                  <Grid item>
-                    {validated ? <CheckCircleIcon sx={{ minHeight: 48 }} color="success" fontSize="large" /> : <CancelIcon color="error" fontSize="large" />}
-                  </Grid>
-                )}
-              </Grid>
-
-              <Box mt={3} display="flex" justifyContent="center" gap={2} minHeight={48}>
-                {validated !== null ? (
-                  validated === false && params.mode === 1 ? (
-                    <Button sx={{ minHeight: 48 }} variant="contained" onClick={restartExercise}>Recommencer</Button>
                   ) : (
-                    <Button sx={{ minHeight: 48 }} variant="contained" onClick={newExercise}>
-                      {currentSeries === params.series ? "Afficher votre résultat" : "Exercice suivant"}
-                    </Button>
-                  )
-                ) : (
-                  <Box visibility="hidden"><Button sx={{ minHeight: 48 }} variant="outlined">Placeholder</Button></Box>
-                )}
-              </Box>
+                      // 👇 Affichage posé (inchangé)
+                      <Box display="inline-block" textAlign="right" mb={2}>
+                        <Typography variant="h4" translate="no">
+                          {exercise.a}
+                        </Typography>
+                        <Typography variant="h4" translate="no">
+                          {operatorSymbol} {exercise.b}
+                        </Typography>
+                        <Box
+                            sx={{
+                              borderBottom: "2px solid black",
+                              width: "100%",
+                              my: 1
+                            }}
+                        />
+                        <Typography variant="h4" translate="no">
+                          {input || <span>&nbsp;</span>}
+                        </Typography>
+                      </Box>
+                  )}
 
-              <Box mt={2}>
-                <Typography translate="no" variant="subtitle1">{currentSeries} / {params.series}</Typography>
-                <Typography translate="no" variant="subtitle2">Temps écoulé: {time}s</Typography>
-              </Box>
-            </>
-          )}
+                  <NumericKeypad
+                      onNumberClick={handleNumberClick}
+                      onBackspace={handleBackspace}
+                      onClear={handleClear}
+                      disabled={validated !== null}
+                      showBack={params.line !== 0}
+                  />
 
-          {seriesFinished && (
-            <>
-              <Typography translate="no" variant="h5" gutterBottom>Série terminée ! 🎉</Typography>
+                  <Grid container spacing={2} justifyContent="center" alignItems="center" mt={2}>
+                    {validated === null ? (
+                        <Grid item>
+                          <Button variant="contained" onClick={checkAnswer} disabled={!input} sx={{ minHeight: 48 }}>Valider</Button>
+                        </Grid>
+                    ) : (
+                        <Grid item>
+                          {validated ? <CheckCircleIcon sx={{ minHeight: 48 }} color="success" fontSize="large" /> : <CancelIcon color="error" fontSize="large" />}
+                        </Grid>
+                    )}
+                  </Grid>
 
-              <Typography translate="no" variant="subtitle1" gutterBottom>
-                {params.mode === 1
-                  ? `Résultat: ${firstTryCount} / ${results.length} réussi(s) au premier essai`
-                  : `Résultat: ${correctCount} / ${results.length} bonnes réponses`}
-              </Typography>
-
-              <Typography translate="no" variant="subtitle2" gutterBottom>Temps total: {time}s</Typography>
-
-              <Box mt={2} sx={{ maxHeight: "40vh", overflowY: "auto", pr: 1 }}>
-                {results.map((res, idx) => (
-                  <Box key={idx} display="flex" justifyContent="space-between" alignItems="center" mb={1} p={1} border="1px solid #ddd" borderRadius={2}>
-                    <Typography>{res.a} {operatorSymbol} {res.b} = {res.answer}</Typography>
-
-                    {params.mode === 0 && <Typography>Votre réponse: {res.userAnswer}</Typography>}
-                    {params.mode === 1 && res.attempts > 1 && <Typography>{res.attempts - 1} erreur(s)</Typography>}
-
-                    {(params.mode === 0 && res.correct) || (params.mode === 1 && res.attempts === 1)
-                      ? <CheckCircleIcon color="success" />
-                      : <CancelIcon color="error" />}
+                  <Box mt={3} display="flex" justifyContent="center" gap={2} minHeight={48}>
+                    {validated !== null ? (
+                        validated === false && params.mode === 1 ? (
+                            <Button sx={{ minHeight: 48 }} variant="contained" onClick={restartExercise}>Recommencer</Button>
+                        ) : (
+                            <Button sx={{ minHeight: 48 }} variant="contained" onClick={newExercise}>
+                              {currentSeries === params.series ? "Afficher votre résultat" : "Exercice suivant"}
+                            </Button>
+                        )
+                    ) : (
+                        <Box visibility="hidden"><Button sx={{ minHeight: 48 }} variant="outlined">Placeholder</Button></Box>
+                    )}
                   </Box>
-                ))}
-              </Box>
 
-              <Box mt={3}>
-                <Button variant="contained" sx={{ minHeight: 48 }} onClick={restartSeries}>Recommencer</Button>
-              </Box>
-            </>
-          )}
+                  <Box mt={2}>
+                    <Typography translate="no" variant="subtitle1">{currentSeries} / {params.series}</Typography>
+                    <Typography translate="no" variant="subtitle2">Temps écoulé: {time}s</Typography>
+                  </Box>
+                </>
+            )}
 
-          <Box mt={3}>
-            <Button variant="outlined" sx={{ minHeight: 48 }} onClick={() => navigate("/")}>Changer d'exercice</Button>
-          </Box>
+            {seriesFinished && (
+                <>
+                  <Typography translate="no" variant="h5" gutterBottom>Série terminée ! 🎉</Typography>
 
-        </CardContent>
-      </Card>
-    </Box>
+                  <Typography translate="no" variant="subtitle1" gutterBottom>
+                    {params.mode === 1
+                        ? `Résultat: ${firstTryCount} / ${results.length} réussi(s) au premier essai`
+                        : `Résultat: ${correctCount} / ${results.length} bonnes réponses`}
+                  </Typography>
+
+                  <Typography translate="no" variant="subtitle2" gutterBottom>Temps total: {time}s</Typography>
+
+                  <Box mt={2} sx={{ maxHeight: "40vh", overflowY: "auto", pr: 1 }}>
+                    {results.map((res, idx) => (
+                        <Box key={idx} display="flex" justifyContent="space-between" alignItems="center" mb={1} p={1} border="1px solid #ddd" borderRadius={2}>
+                          <Typography>{res.a} {operatorSymbol} {res.b} = {res.answer}</Typography>
+
+                          {params.mode === 0 && <Typography>Votre réponse: {res.userAnswer}</Typography>}
+                          {params.mode === 1 && res.attempts > 1 && <Typography>{res.attempts - 1} erreur(s)</Typography>}
+
+                          {(params.mode === 0 && res.correct) || (params.mode === 1 && res.attempts === 1)
+                              ? <CheckCircleIcon color="success" />
+                              : <CancelIcon color="error" />}
+                        </Box>
+                    ))}
+                  </Box>
+
+                  <Box mt={3}>
+                    <Button variant="contained" sx={{ minHeight: 48 }} onClick={restartSeries}>Recommencer</Button>
+                  </Box>
+                </>
+            )}
+
+            <Box mt={3}>
+              <Button variant="outlined" sx={{ minHeight: 48 }} onClick={() => navigate("/")}>Changer d'exercice</Button>
+            </Box>
+
+          </CardContent>
+        </Card>
+      </Box>
   );
 }

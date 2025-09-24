@@ -45,32 +45,55 @@ export default function IndexPage(): JSX.Element {
             label: "Additions",
             color: "primary.main",
             presets: [
-                { label: "⬜ + ⬜ = ⬜⬜", url: `/exercice?mind1=1&maxd1=1&mind2=1&maxd2=1&minres=1&maxres=2&mode=1&series=10&operator=add&line=1` },
-                { label: "⬜ + ⬜⬜ = ⬜⬜⬜", url: `/exercice?mind1=1&maxd1=1&mind2=2&maxd2=2&minres=1&maxres=3&mode=1&series=10&operator=add&line=1` },
-                { label: "⬜⬜ + ⬜⬜ = ⬜⬜", url: `/exercice?mind1=2&maxd1=2&mind2=2&maxd2=2&minres=1&maxres=2&mode=1&series=10&operator=add&line=1` },
-                { label: "⬜⬜ + ⬜⬜ = ⬜⬜⬜", url: `/exercice?mind1=2&maxd1=2&mind2=2&maxd2=2&minres=1&maxres=3&mode=1&series=10&operator=add&line=1` },
-                { label: "⬜⬜⬜ + ⬜⬜⬜ = ⬜⬜⬜⬜", url: `/exercice?mind1=3&maxd1=3&mind2=3&maxd2=3&minres=1&maxres=4&mode=1&series=10&operator=add&line=1` },
-                { label: "⬜⬜⬜⬜ + ⬜⬜⬜⬜ = ⬜⬜⬜⬜⬜", url: `/exercice?mind1=4&maxd1=4&mind2=4&maxd2=4&minres=1&maxres=5&mode=1&series=10&operator=add&line=1` },
+                { label: "⬜ + ⬜ = ?",              url: `/exercice?mind1=1&maxd1=1&mind2=1&maxd2=1&minres=1&maxres=9&mode=1&series=10&operator=add` },
+                { label: "⬜ + ⬜⬜ = ?",            url: `/exercice?mind1=1&maxd1=1&mind2=2&maxd2=2&minres=1&maxres=9&mode=1&series=10&operator=add` },
+                { label: "⬜⬜ + ⬜⬜ = ?",          url: `/exercice?mind1=2&maxd1=2&mind2=1&maxd2=2&minres=1&maxres=9&mode=1&series=10&operator=add` },
+                { label: "⬜⬜⬜ + ⬜⬜⬜ = ?",      url: `/exercice?mind1=3&maxd1=3&mind2=1&maxd2=3&minres=1&maxres=9&mode=1&series=10&operator=add` },
+                { label: "⬜⬜⬜⬜ + ⬜⬜⬜⬜ = ?", url: `/exercice?mind1=4&maxd1=4&mind2=1&maxd2=4&minres=1&maxres=9&mode=1&series=10&operator=add` },
+            ]
+        },
+        {
+            label: "Additions à trou",
+            color: "primary.main",
+            presets: [
+                { label: "⬜ + ? = ⬜",              url: `/exercice?mind1=1&maxd1=1&mind2=1&maxd2=1&minres=1&maxres=1&mode=1&series=10&operator=add&hole=1` },
+                { label: "⬜ + ? = ⬜⬜",            url: `/exercice?mind1=1&maxd1=1&mind2=1&maxd2=1&minres=1&maxres=2&mode=1&series=10&operator=add&hole=1` },
+                { label: "⬜⬜ + ? = ⬜⬜",          url: `/exercice?mind1=2&maxd1=2&mind2=1&maxd2=2&minres=1&maxres=2&mode=1&series=10&operator=add&hole=1` },
+                { label: "⬜⬜⬜ + ? = ⬜⬜⬜",     url: `/exercice?mind1=3&maxd1=3&mind2=1&maxd2=3&minres=1&maxres=3&mode=1&series=10&operator=add&hole=1` },
+                { label: "⬜⬜⬜⬜ + ? = ⬜⬜⬜⬜", url: `/exercice?mind1=4&maxd1=4&mind2=1&maxd2=4&minres=1&maxres=4&mode=1&series=10&operator=add&hole=1` },
             ]
         },
         {
             label: "Soustractions",
             color: "error.main",
             presets: [
-                { label: "⬜ - ⬜ = ⬜", url: `/exercice?mind1=1&maxd1=1&mind2=1&maxd2=1&minres=1&maxres=1&mode=1&series=10&operator=sub&line=1` },
-                { label: "⬜⬜ - ⬜ = ⬜⬜", url: `/exercice?mind1=2&maxd1=2&mind2=2&maxd2=2&minres=1&maxres=2&mode=1&series=10&operator=sub&line=1` },
-                { label: "⬜⬜ - ⬜⬜ = ⬜⬜", url: `/exercice?mind1=2&maxd1=2&mind2=2&maxd2=2&minres=1&maxres=2&mode=1&series=10&operator=sub&line=1` },
-                { label: "⬜⬜⬜ - ⬜⬜ = ⬜⬜⬜", url: `/exercice?mind1=3&maxd1=3&mind2=1&maxd2=2&minres=1&maxres=3&mode=1&series=10&operator=sub&line=1` },
-                { label: "⬜⬜⬜ - ⬜⬜⬜ = ⬜⬜⬜", url: `/exercice?mind1=3&maxd1=3&mind2=1&maxd2=3&minres=1&maxres=3&mode=1&series=10&operator=sub&line=1` },
-                { label: "⬜⬜⬜⬜ - ⬜⬜⬜⬜ = ⬜⬜⬜⬜", url: `/exercice?mind1=4&maxd1=4&mind2=1&maxd2=4&minres=1&maxres=4&mode=1&series=10&operator=sub&line=1` },
+                { label: "⬜ - ⬜ = ?",             url: `/exercice?mind1=1&maxd1=1&mind2=1&maxd2=1&minres=1&maxres=9&mode=1&series=10&operator=sub` },
+                { label: "⬜⬜ - ⬜ = ?",           url: `/exercice?mind1=2&maxd1=2&mind2=1&maxd2=1&minres=1&maxres=9&mode=1&series=10&operator=sub` },
+                { label: "⬜⬜ - ⬜⬜ = ?",         url: `/exercice?mind1=2&maxd1=2&mind2=2&maxd2=2&minres=1&maxres=9&mode=1&series=10&operator=sub` },
+                { label: "⬜⬜⬜ - ⬜⬜⬜ = ?",     url: `/exercice?mind1=3&maxd1=3&mind2=1&maxd2=3&minres=1&maxres=9&mode=1&series=10&operator=sub` },
+                { label: "⬜⬜⬜⬜ - ⬜⬜⬜⬜ = ?", url: `/exercice?mind1=4&maxd1=4&mind2=1&maxd2=4&minres=1&maxres=9&mode=1&series=10&operator=sub` },
+            ]
+        },
+        {
+            label: "Soustractions à trou",
+            color: "error.main",
+            presets: [
+                { label: "⬜ - ? = ⬜",             url: `/exercice?mind1=1&maxd1=1&mind2=1&maxd2=1&minres=1&maxres=1&mode=1&series=10&operator=sub&hole=1` },
+                { label: "⬜⬜ - ? = ⬜",           url: `/exercice?mind1=2&maxd1=2&mind2=1&maxd2=2&minres=1&maxres=1&mode=1&series=10&operator=sub&hole=1` },
+                { label: "⬜⬜ - ? = ⬜⬜",         url: `/exercice?mind1=2&maxd1=2&mind2=1&maxd2=2&minres=2&maxres=2&mode=1&series=10&operator=sub&hole=1` },
+                { label: "⬜⬜⬜ - ? = ⬜⬜⬜",     url: `/exercice?mind1=3&maxd1=3&mind2=1&maxd2=3&minres=3&maxres=3&mode=1&series=10&operator=sub&hole=1` },
+                { label: "⬜⬜⬜⬜ - ? = ⬜⬜⬜⬜", url: `/exercice?mind1=4&maxd1=4&mind2=1&maxd2=4&minres=4&maxres=4&mode=1&series=10&operator=sub&hole=1` },
             ]
         },
         {
             label: "Multiplications",
             color: "success.main",
             presets: [
-                { label: "⬜ x ⬜ = ⬜⬜", url: `/exercice?mind1=1&maxd1=1&mind2=1&maxd2=1&minres=1&maxres=2&mode=1&series=10&operator=mul&line=1` },
-                { label: "⬜ x ⬜⬜ = ⬜⬜⬜", url: `/exercice?mind1=1&maxd1=1&mind2=2&maxd2=2&minres=1&maxres=3&mode=1&series=10&operator=mul&line=1` }
+                { label: "⬜ x ⬜ = ?",         url: `/exercice?mind1=1&maxd1=1&mind2=1&maxd2=1&minres=1&maxres=9&mode=1&series=10&operator=mul` },
+                { label: "⬜⬜ x ⬜ = ?",       url: `/exercice?mind1=2&maxd1=2&mind2=1&maxd2=1&minres=1&maxres=9&mode=1&series=10&operator=mul` },
+                { label: "⬜⬜ x ⬜⬜ = ?",     url: `/exercice?mind1=2&maxd1=2&mind2=2&maxd2=2&minres=1&maxres=9&mode=1&series=10&operator=mul` },
+                { label: "⬜⬜⬜ x ⬜⬜ = ?",   url: `/exercice?mind1=3&maxd1=3&mind2=2&maxd2=2&minres=1&maxres=9&mode=1&series=10&operator=mul` },
+                { label: "⬜⬜⬜ x ⬜⬜⬜ = ?", url: `/exercice?mind1=3&maxd1=3&mind2=3&maxd2=3&minres=1&maxres=9&mode=1&series=10&operator=mul` }
             ]
         }
     ];
