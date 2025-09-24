@@ -21,9 +21,9 @@ interface Params {
   maxres: number;
   mode: 0 | 1;
   series: number;
-  operator: "add" | "mul" | "sub";
+  operator: "add" | "mul" | "sub" | "div";
   line: 0 | 1;
-  hole: 0 | 1;   // 👈 ajouté
+  hole: 0 | 1;
 }
 
 interface ExerciseResult extends Exercise {
@@ -43,10 +43,13 @@ function randomNumberBetween(min: number, max: number): number {
 }
 
 function generateExercise(
-    mind1: number, maxd1: number,
-    mind2: number, maxd2: number,
-    minres: number, maxres: number,
-    operator: "add" | "mul" | "sub"
+    mind1: number,
+    maxd1: number,
+    mind2: number,
+    maxd2: number,
+    minres: number,
+    maxres: number,
+    operator: "add" | "mul" | "sub" | "div"
 ): Exercise {
   const rangeA = minMaxFromDigits(mind1);
   const rangeAMax = minMaxFromDigits(maxd1);
@@ -63,19 +66,35 @@ function generateExercise(
     } else if (operator === "sub") {
       if (b > a) [a, b] = [b, a];
       result = a - b;
+    } else if (operator === "div") {
+      // éviter div par zéro
+      if (b === 0) b = 1;
+      result = Math.floor(a / b);
+      a = result * b; // garantir que a / b est entier
     } else {
       result = a + b;
     }
-  } while (result.toString().length < minres || result.toString().length > maxres);
+  } while (
+      result.toString().length < minres ||
+      result.toString().length > maxres
+      );
 
   return { a, b, answer: result };
 }
 
 export default function Exercises(): JSX.Element {
   const [params, setParams] = useState<Params>({
-    mind1: 1, maxd1: 1, mind2: 1, maxd2: 1,
-    minres: 1, maxres: 2, mode: 0, series: 0,
-    operator: "add", line: 1, hole: 0
+    mind1: 1,
+    maxd1: 1,
+    mind2: 1,
+    maxd2: 1,
+    minres: 1,
+    maxres: 2,
+    mode: 0,
+    series: 0,
+    operator: "add",
+    line: 1,
+    hole: 0,
   });
 
   const [exercise, setExercise] = useState<Exercise | null>(null);
@@ -93,7 +112,8 @@ export default function Exercises(): JSX.Element {
   // Charger les paramètres depuis l'URL
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
-    const getInt = (key: string, def: number) => parseInt(searchParams.get(key) || String(def), 10);
+    const getInt = (key: string, def: number) =>
+        parseInt(searchParams.get(key) || String(def), 10);
 
     setParams({
       mind1: getInt("mind1", 1),
@@ -104,9 +124,11 @@ export default function Exercises(): JSX.Element {
       maxres: getInt("maxres", 2),
       mode: getInt("mode", 0) as 0 | 1,
       series: getInt("series", 0),
-      operator: (searchParams.get("operator") as "add" | "mul" | "sub") || "add",
+      operator:
+          (searchParams.get("operator") as "add" | "mul" | "sub" | "div") ||
+          "add",
       line: getInt("line", 1) as 0 | 1,
-      hole: getInt("hole", 0) as 0 | 1   // 👈 récupéré
+      hole: getInt("hole", 0) as 0 | 1,
     });
   }, []);
 
@@ -124,18 +146,31 @@ export default function Exercises(): JSX.Element {
     setExerciseAttempts(0);
     setCurrentSeries(1);
     setResults([]);
-    setExercise(generateExercise(
-        params.mind1, params.maxd1, params.mind2, params.maxd2,
-        params.minres, params.maxres, params.operator
-    ));
+    setExercise(
+        generateExercise(
+            params.mind1,
+            params.maxd1,
+            params.mind2,
+            params.maxd2,
+            params.minres,
+            params.maxres,
+            params.operator
+        )
+    );
     setInput("");
     setValidated(null);
     setTime(0);
-    timerRef.current = setInterval(() => setTime(prev => prev + 1), 1000);
+    timerRef.current = setInterval(() => setTime((prev) => prev + 1), 1000);
   }, [params]);
 
-  const startSeries = () => { setStarted(true); initSeries(); };
-  const restartSeries = () => { setStarted(false); initSeries(); };
+  const startSeries = () => {
+    setStarted(true);
+    initSeries();
+  };
+  const restartSeries = () => {
+    setStarted(false);
+    initSeries();
+  };
 
   const checkAnswer = () => {
     if (!exercise || !input) return;
@@ -145,65 +180,104 @@ export default function Exercises(): JSX.Element {
     if (params.hole === 0) {
       expected = exercise.answer; // trouver le résultat
     } else {
-      expected = exercise.b;      // trouver b
+      expected = exercise.b; // trouver b
     }
 
     const isCorrect = userVal === expected;
     setValidated(isCorrect);
-    setExerciseAttempts(prev => prev + 1);
+    setExerciseAttempts((prev) => prev + 1);
 
-    if (currentSeries === params.series && (isCorrect || params.mode === 0)) stopTimer();
+    if (
+        currentSeries === params.series &&
+        (isCorrect || params.mode === 0)
+    )
+      stopTimer();
   };
 
   const newExercise = () => {
     if (!exercise) return;
 
     if (validated !== null) {
-      setResults(prev => [...prev, {
-        ...exercise,
-        userAnswer: parseInt(input, 10),
-        correct: validated,
-        attempts: exerciseAttempts
-      }]);
+      setResults((prev) => [
+        ...prev,
+        {
+          ...exercise,
+          userAnswer: parseInt(input, 10),
+          correct: validated,
+          attempts: exerciseAttempts,
+        },
+      ]);
     }
 
     if (currentSeries === params.series) {
-      setCurrentSeries(prev => prev + 1);
+      setCurrentSeries((prev) => prev + 1);
       return;
     }
 
-    setExercise(generateExercise(
-        params.mind1, params.maxd1, params.mind2, params.maxd2,
-        params.minres, params.maxres, params.operator
-    ));
+    setExercise(
+        generateExercise(
+            params.mind1,
+            params.maxd1,
+            params.mind2,
+            params.maxd2,
+            params.minres,
+            params.maxres,
+            params.operator
+        )
+    );
     setInput("");
     setExerciseAttempts(0);
     setValidated(null);
-    setCurrentSeries(prev => prev + 1);
+    setCurrentSeries((prev) => prev + 1);
   };
 
   const handleNumberClick = (num: number) => {
-    setInput(prev => params.line === 0 ? num.toString() + prev : prev + num.toString());
+    setInput((prev) =>
+        params.line === 0 ? num.toString() + prev : prev + num.toString()
+    );
   };
 
-  const handleBackspace = () => setInput(prev => prev.slice(0, -1));
+  const handleBackspace = () => setInput((prev) => prev.slice(0, -1));
   const handleClear = () => setInput("");
-  const restartExercise = () => { setInput(""); setValidated(null); };
+  const restartExercise = () => {
+    setInput("");
+    setValidated(null);
+  };
 
-  const correctCount = results.filter(r => r.correct).length;
-  const firstTryCount = results.filter(r => r.correct && r.attempts === 1).length;
+  const correctCount = results.filter((r) => r.correct).length;
+  const firstTryCount = results.filter(
+      (r) => r.correct && r.attempts === 1
+  ).length;
 
   const operatorSymbol =
-      params.operator === "mul" ? "×" :
-          params.operator === "sub" ? "−" : "+";
+      params.operator === "mul"
+          ? "×"
+          : params.operator === "sub"
+              ? "−"
+              : params.operator === "div"
+                  ? "÷"
+                  : "+";
 
   return (
-      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", width: "100vw", height: "100vh" }}>
+      <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            width: "100vw",
+            height: "100vh",
+          }}
+      >
         <Card sx={{ p: 3, minWidth: 360, textAlign: "center" }}>
           <CardContent>
-
             {!started && (
-                <Button variant="contained" onClick={startSeries} sx={{ minHeight: 48 }}>Démarrer</Button>
+                <Button
+                    variant="contained"
+                    onClick={startSeries}
+                    sx={{ minHeight: 48 }}
+                >
+                  Démarrer
+                </Button>
             )}
 
             {started && !seriesFinished && exercise && (
@@ -211,13 +285,10 @@ export default function Exercises(): JSX.Element {
                   {params.line === 1 ? (
                       <Typography translate="no" variant="h4" gutterBottom>
                         {exercise.a} {operatorSymbol}{" "}
-                        {params.hole === 1 ? (input || "?") : exercise.b} ={" "}
-                        {params.hole === 0 ? (input || " ") : exercise.answer}
+                        {params.hole === 1 ? input || "?" : exercise.b} ={" "}
+                        {params.hole === 0 ? input || " " : exercise.answer}
                       </Typography>
-
-
                   ) : (
-                      // 👇 Affichage posé (inchangé)
                       <Box display="inline-block" textAlign="right" mb={2}>
                         <Typography variant="h4" translate="no">
                           {exercise.a}
@@ -229,7 +300,7 @@ export default function Exercises(): JSX.Element {
                             sx={{
                               borderBottom: "2px solid black",
                               width: "100%",
-                              my: 1
+                              my: 1,
                             }}
                         />
                         <Typography variant="h4" translate="no">
@@ -246,42 +317,91 @@ export default function Exercises(): JSX.Element {
                       showBack={params.line !== 0}
                   />
 
-                  <Grid container spacing={2} justifyContent="center" alignItems="center" mt={2}>
+                  <Grid
+                      container
+                      spacing={2}
+                      justifyContent="center"
+                      alignItems="center"
+                      mt={2}
+                  >
                     {validated === null ? (
                         <Grid item>
-                          <Button variant="contained" onClick={checkAnswer} disabled={!input} sx={{ minHeight: 48 }}>Valider</Button>
+                          <Button
+                              variant="contained"
+                              onClick={checkAnswer}
+                              disabled={!input}
+                              sx={{ minHeight: 48 }}
+                          >
+                            Valider
+                          </Button>
                         </Grid>
                     ) : (
                         <Grid item>
-                          {validated ? <CheckCircleIcon sx={{ minHeight: 48 }} color="success" fontSize="large" /> : <CancelIcon color="error" fontSize="large" />}
+                          {validated ? (
+                              <CheckCircleIcon
+                                  sx={{ minHeight: 48 }}
+                                  color="success"
+                                  fontSize="large"
+                              />
+                          ) : (
+                              <CancelIcon color="error" fontSize="large" />
+                          )}
                         </Grid>
                     )}
                   </Grid>
 
-                  <Box mt={3} display="flex" justifyContent="center" gap={2} minHeight={48}>
+                  <Box
+                      mt={3}
+                      display="flex"
+                      justifyContent="center"
+                      gap={2}
+                      minHeight={48}
+                  >
                     {validated !== null ? (
                         validated === false && params.mode === 1 ? (
-                            <Button sx={{ minHeight: 48 }} variant="contained" onClick={restartExercise}>Recommencer</Button>
+                            <Button
+                                sx={{ minHeight: 48 }}
+                                variant="contained"
+                                onClick={restartExercise}
+                            >
+                              Recommencer
+                            </Button>
                         ) : (
-                            <Button sx={{ minHeight: 48 }} variant="contained" onClick={newExercise}>
-                              {currentSeries === params.series ? "Afficher votre résultat" : "Exercice suivant"}
+                            <Button
+                                sx={{ minHeight: 48 }}
+                                variant="contained"
+                                onClick={newExercise}
+                            >
+                              {currentSeries === params.series
+                                  ? "Afficher votre résultat"
+                                  : "Exercice suivant"}
                             </Button>
                         )
                     ) : (
-                        <Box visibility="hidden"><Button sx={{ minHeight: 48 }} variant="outlined">Placeholder</Button></Box>
+                        <Box visibility="hidden">
+                          <Button sx={{ minHeight: 48 }} variant="outlined">
+                            Placeholder
+                          </Button>
+                        </Box>
                     )}
                   </Box>
 
                   <Box mt={2}>
-                    <Typography translate="no" variant="subtitle1">{currentSeries} / {params.series}</Typography>
-                    <Typography translate="no" variant="subtitle2">Temps écoulé: {time}s</Typography>
+                    <Typography translate="no" variant="subtitle1">
+                      {currentSeries} / {params.series}
+                    </Typography>
+                    <Typography translate="no" variant="subtitle2">
+                      Temps écoulé: {time}s
+                    </Typography>
                   </Box>
                 </>
             )}
 
             {seriesFinished && (
                 <>
-                  <Typography translate="no" variant="h5" gutterBottom>Série terminée ! 🎉</Typography>
+                  <Typography translate="no" variant="h5" gutterBottom>
+                    Série terminée ! 🎉
+                  </Typography>
 
                   <Typography translate="no" variant="subtitle1" gutterBottom>
                     {params.mode === 1
@@ -289,33 +409,67 @@ export default function Exercises(): JSX.Element {
                         : `Résultat: ${correctCount} / ${results.length} bonnes réponses`}
                   </Typography>
 
-                  <Typography translate="no" variant="subtitle2" gutterBottom>Temps total: {time}s</Typography>
+                  <Typography translate="no" variant="subtitle2" gutterBottom>
+                    Temps total: {time}s
+                  </Typography>
 
-                  <Box mt={2} sx={{ maxHeight: "40vh", overflowY: "auto", pr: 1 }}>
+                  <Box
+                      mt={2}
+                      sx={{ maxHeight: "40vh", overflowY: "auto", pr: 1 }}
+                  >
                     {results.map((res, idx) => (
-                        <Box key={idx} display="flex" justifyContent="space-between" alignItems="center" mb={1} p={1} border="1px solid #ddd" borderRadius={2}>
-                          <Typography>{res.a} {operatorSymbol} {res.b} = {res.answer}</Typography>
+                        <Box
+                            key={idx}
+                            display="flex"
+                            justifyContent="space-between"
+                            alignItems="center"
+                            mb={1}
+                            p={1}
+                            border="1px solid #ddd"
+                            borderRadius={2}
+                        >
+                          <Typography>
+                            {res.a} {operatorSymbol} {res.b} = {res.answer}
+                          </Typography>
 
-                          {params.mode === 0 && <Typography>Votre réponse: {res.userAnswer}</Typography>}
-                          {params.mode === 1 && res.attempts > 1 && <Typography>{res.attempts - 1} erreur(s)</Typography>}
+                          {params.mode === 0 && (
+                              <Typography>Votre réponse: {res.userAnswer}</Typography>
+                          )}
+                          {params.mode === 1 && res.attempts > 1 && (
+                              <Typography>{res.attempts - 1} erreur(s)</Typography>
+                          )}
 
-                          {(params.mode === 0 && res.correct) || (params.mode === 1 && res.attempts === 1)
-                              ? <CheckCircleIcon color="success" />
-                              : <CancelIcon color="error" />}
+                          {(params.mode === 0 && res.correct) ||
+                          (params.mode === 1 && res.attempts === 1) ? (
+                              <CheckCircleIcon color="success" />
+                          ) : (
+                              <CancelIcon color="error" />
+                          )}
                         </Box>
                     ))}
                   </Box>
 
                   <Box mt={3}>
-                    <Button variant="contained" sx={{ minHeight: 48 }} onClick={restartSeries}>Recommencer</Button>
+                    <Button
+                        variant="contained"
+                        sx={{ minHeight: 48 }}
+                        onClick={restartSeries}
+                    >
+                      Recommencer
+                    </Button>
                   </Box>
                 </>
             )}
 
             <Box mt={3}>
-              <Button variant="outlined" sx={{ minHeight: 48 }} onClick={() => navigate("/")}>Changer d'exercice</Button>
+              <Button
+                  variant="outlined"
+                  sx={{ minHeight: 48 }}
+                  onClick={() => navigate("/")}
+              >
+                Changer d'exercice
+              </Button>
             </Box>
-
           </CardContent>
         </Card>
       </Box>
