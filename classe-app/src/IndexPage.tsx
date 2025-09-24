@@ -49,6 +49,8 @@ export default function IndexPage(): JSX.Element {
                 { label: "⬜ + ⬜⬜ = ⬜⬜⬜", url: `/exercice?mind1=1&maxd1=1&mind2=2&maxd2=2&minres=1&maxres=3&mode=1&series=10&operator=add&line=1` },
                 { label: "⬜⬜ + ⬜⬜ = ⬜⬜", url: `/exercice?mind1=2&maxd1=2&mind2=2&maxd2=2&minres=1&maxres=2&mode=1&series=10&operator=add&line=1` },
                 { label: "⬜⬜ + ⬜⬜ = ⬜⬜⬜", url: `/exercice?mind1=2&maxd1=2&mind2=2&maxd2=2&minres=1&maxres=3&mode=1&series=10&operator=add&line=1` },
+                { label: "⬜⬜⬜ + ⬜⬜⬜ = ⬜⬜⬜⬜", url: `/exercice?mind1=3&maxd1=3&mind2=3&maxd2=3&minres=1&maxres=4&mode=1&series=10&operator=add&line=1` },
+                { label: "⬜⬜⬜⬜ + ⬜⬜⬜⬜ = ⬜⬜⬜⬜⬜", url: `/exercice?mind1=4&maxd1=4&mind2=4&maxd2=4&minres=1&maxres=5&mode=1&series=10&operator=add&line=1` },
             ]
         },
         {
@@ -60,6 +62,7 @@ export default function IndexPage(): JSX.Element {
                 { label: "⬜⬜ - ⬜⬜ = ⬜⬜", url: `/exercice?mind1=2&maxd1=2&mind2=2&maxd2=2&minres=1&maxres=2&mode=1&series=10&operator=sub&line=1` },
                 { label: "⬜⬜⬜ - ⬜⬜ = ⬜⬜⬜", url: `/exercice?mind1=3&maxd1=3&mind2=1&maxd2=2&minres=1&maxres=3&mode=1&series=10&operator=sub&line=1` },
                 { label: "⬜⬜⬜ - ⬜⬜⬜ = ⬜⬜⬜", url: `/exercice?mind1=3&maxd1=3&mind2=1&maxd2=3&minres=1&maxres=3&mode=1&series=10&operator=sub&line=1` },
+                { label: "⬜⬜⬜⬜ - ⬜⬜⬜⬜ = ⬜⬜⬜⬜", url: `/exercice?mind1=4&maxd1=4&mind2=1&maxd2=4&minres=1&maxres=4&mode=1&series=10&operator=sub&line=1` },
             ]
         },
         {
