@@ -22,7 +22,8 @@ import HourglassEmptyIcon from "@mui/icons-material/HourglassEmpty";
 interface Exercise {
   a: number;
   b: number;
-  answer: number;
+  result: number; // a operator b = result
+  answer: number; // can be b or result
 }
 
 interface Params {
@@ -62,7 +63,8 @@ function generateExercise(
     maxd2: number,
     minres: number,
     maxres: number,
-    operator: "add" | "mul" | "sub" | "div"
+    operator: "add" | "mul" | "sub" | "div",
+    hole: 0|1,
 ): Exercise {
   const rangeA = minMaxFromDigits(mind1);
   const rangeAMax = minMaxFromDigits(maxd1);
@@ -91,7 +93,12 @@ function generateExercise(
       result.toString().length > maxres
       );
 
-  return { a, b, answer: result };
+  if (hole === 0) {
+    return { a, b, result: result, answer: result };
+  } else {
+    return { a, b, result: result, answer: b };
+  }
+
 }
 
 export default function Exercises(): JSX.Element {
@@ -164,7 +171,8 @@ export default function Exercises(): JSX.Element {
         params.maxd2,
         params.minres,
         params.maxres,
-        params.operator
+        params.operator,
+        params.hole
     );
     setExercise(ex);
     setUserDigits(Array(ex.answer.toString().length).fill(null));
@@ -187,14 +195,13 @@ export default function Exercises(): JSX.Element {
     const userVal = parseInt(userDigits.map((d) => d ?? "").join(""), 10);
     if (isNaN(userVal)) return;
 
-    let expected: number;
-    if (params.hole === 0) {
-      expected = exercise.answer;
-    } else {
-      expected = exercise.b;
-    }
+    //console.log("userVal: " + userVal);
+    //console.log("exercise.a: " + exercise.a);
+    //console.log("exercise.b: " + exercise.b);
+    //console.log("exercise.result: " + exercise.result);
+    //console.log("expected.answer: " + exercise.answer);
 
-    const isCorrect = userVal === expected;
+    const isCorrect = userVal === exercise.answer;
     setValidated(isCorrect);
     setExerciseAttempts((prev) => prev + 1);
 
@@ -229,7 +236,8 @@ export default function Exercises(): JSX.Element {
         params.maxd2,
         params.minres,
         params.maxres,
-        params.operator
+        params.operator,
+        params.hole
     );
     setExercise(ex);
     setUserDigits(Array(ex.answer.toString().length).fill(null));
@@ -286,11 +294,11 @@ export default function Exercises(): JSX.Element {
                 <>
                   {params.line === 1 ? (
                       <Typography translate="no" variant="h5" gutterBottom>
-                        {exercise.a} {operatorSymbol}{" "}
-                        {params.hole === 1
-                            ? "?"
-                            : exercise.b}{" "}
-                        = {params.hole === 1 ? exercise.b : "?"}
+                        {exercise.a}{" "}
+                        {operatorSymbol}{" "}
+                        {params.hole === 1 ? "?" : exercise.b}{" "}
+                        ={" "}
+                        {params.hole === 1 ? exercise.result : "?"}
                       </Typography>
                   ) : (
                       <Box display="inline-block" textAlign="right" mb={2}>
@@ -307,9 +315,6 @@ export default function Exercises(): JSX.Element {
                               my: 1,
                             }}
                         />
-                        <Typography variant="h5" translate="no">
-                          {userDigits.join("") || <span>&nbsp;</span>}
-                        </Typography>
                       </Box>
                   )}
 
@@ -477,7 +482,7 @@ export default function Exercises(): JSX.Element {
                             borderRadius={2}
                         >
                           <Typography>
-                            {res.a} {operatorSymbol} {res.b} = {res.answer}
+                            {res.a} {operatorSymbol} {res.b} = {res.result}
                           </Typography>
 
                           {params.mode === 0 && (
