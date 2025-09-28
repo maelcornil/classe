@@ -1,5 +1,12 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Box, Card, CardContent, Typography, Grid, Button } from "@mui/material";
+import {
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  Grid,
+  Button,
+} from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
@@ -103,7 +110,7 @@ export default function Exercises(): JSX.Element {
   });
 
   const [exercise, setExercise] = useState<Exercise | null>(null);
-  const [input, setInput] = useState("");
+  const [userDigits, setUserDigits] = useState<(number | null)[]>([]);
   const [validated, setValidated] = useState<null | boolean>(null);
   const [currentSeries, setCurrentSeries] = useState(0);
   const [results, setResults] = useState<ExerciseResult[]>([]);
@@ -114,7 +121,6 @@ export default function Exercises(): JSX.Element {
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const navigate = useNavigate();
 
-  // Charger les paramètres depuis l'URL
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
     const getInt = (key: string, def: number) =>
@@ -151,18 +157,17 @@ export default function Exercises(): JSX.Element {
     setExerciseAttempts(0);
     setCurrentSeries(1);
     setResults([]);
-    setExercise(
-        generateExercise(
-            params.mind1,
-            params.maxd1,
-            params.mind2,
-            params.maxd2,
-            params.minres,
-            params.maxres,
-            params.operator
-        )
+    const ex = generateExercise(
+        params.mind1,
+        params.maxd1,
+        params.mind2,
+        params.maxd2,
+        params.minres,
+        params.maxres,
+        params.operator
     );
-    setInput("");
+    setExercise(ex);
+    setUserDigits(Array(ex.answer.toString().length).fill(null));
     setValidated(null);
     setTime(0);
     timerRef.current = setInterval(() => setTime((prev) => prev + 1), 1000);
@@ -178,8 +183,9 @@ export default function Exercises(): JSX.Element {
   };
 
   const checkAnswer = () => {
-    if (!exercise || !input) return;
-    const userVal = parseInt(input, 10);
+    if (!exercise) return;
+    const userVal = parseInt(userDigits.map((d) => d ?? "").join(""), 10);
+    if (isNaN(userVal)) return;
 
     let expected: number;
     if (params.hole === 0) {
@@ -192,10 +198,7 @@ export default function Exercises(): JSX.Element {
     setValidated(isCorrect);
     setExerciseAttempts((prev) => prev + 1);
 
-    if (
-        currentSeries === params.series &&
-        (isCorrect || params.mode === 0)
-    )
+    if (currentSeries === params.series && (isCorrect || params.mode === 0))
       stopTimer();
   };
 
@@ -207,7 +210,7 @@ export default function Exercises(): JSX.Element {
         ...prev,
         {
           ...exercise,
-          userAnswer: parseInt(input, 10),
+          userAnswer: parseInt(userDigits.map((d) => d ?? "").join(""), 10),
           correct: validated,
           attempts: exerciseAttempts,
         },
@@ -219,33 +222,25 @@ export default function Exercises(): JSX.Element {
       return;
     }
 
-    setExercise(
-        generateExercise(
-            params.mind1,
-            params.maxd1,
-            params.mind2,
-            params.maxd2,
-            params.minres,
-            params.maxres,
-            params.operator
-        )
+    const ex = generateExercise(
+        params.mind1,
+        params.maxd1,
+        params.mind2,
+        params.maxd2,
+        params.minres,
+        params.maxres,
+        params.operator
     );
-    setInput("");
+    setExercise(ex);
+    setUserDigits(Array(ex.answer.toString().length).fill(null));
     setExerciseAttempts(0);
     setValidated(null);
     setCurrentSeries((prev) => prev + 1);
   };
 
-  const handleNumberClick = (num: number) => {
-    setInput((prev) =>
-        params.line === 0 ? num.toString() + prev : prev + num.toString()
-    );
-  };
-
-  const handleBackspace = () => setInput((prev) => prev.slice(0, -1));
-  const handleClear = () => setInput("");
   const restartExercise = () => {
-    setInput("");
+    if (!exercise) return;
+    setUserDigits(Array(exercise.answer.toString().length).fill(null));
     setValidated(null);
   };
 
@@ -268,9 +263,10 @@ export default function Exercises(): JSX.Element {
           sx={{
             display: "flex",
             justifyContent: "center",
-            alignItems: "center",
+            alignItems: "flex-start",
             width: "100vw",
-            height: "100vh",
+            minHeight: "100vh",
+            pt: 2,
           }}
       >
         <Card sx={{ p: 3, minWidth: 360, textAlign: "center" }}>
@@ -291,8 +287,10 @@ export default function Exercises(): JSX.Element {
                   {params.line === 1 ? (
                       <Typography translate="no" variant="h4" gutterBottom>
                         {exercise.a} {operatorSymbol}{" "}
-                        {params.hole === 1 ? input || "?" : exercise.b} ={" "}
-                        {params.hole === 0 ? input || " " : exercise.answer}
+                        {params.hole === 1
+                            ? userDigits.join("") || "?"
+                            : exercise.b}{" "}
+                        = {params.hole === 1 ? exercise.b : "?"}
                       </Typography>
                   ) : (
                       <Box display="inline-block" textAlign="right" mb={2}>
@@ -310,18 +308,50 @@ export default function Exercises(): JSX.Element {
                             }}
                         />
                         <Typography variant="h4" translate="no">
-                          {input || <span>&nbsp;</span>}
+                          {userDigits.join("") || <span>&nbsp;</span>}
                         </Typography>
                       </Box>
                   )}
 
-                  <NumericKeypad
-                      onNumberClick={handleNumberClick}
-                      onBackspace={handleBackspace}
-                      onClear={handleClear}
-                      disabled={validated !== null}
-                      showBack={params.line !== 0}
-                  />
+                  <Box display="flex" justifyContent="center" gap={0.5} mt={2}>
+                    {exercise.answer
+                        .toString()
+                        .split("")
+                        .map((_, idx) => (
+                            <Box key={idx} display="flex" flexDirection="column" alignItems="center" gap={0}>
+                              <Typography variant="h4">
+                                {userDigits[idx] !== null ? userDigits[idx] : "?"}
+                              </Typography>
+                              <NumericKeypad
+                                  onNumberClick={(num) =>
+                                      setUserDigits((prev) => {
+                                        const copy = [...prev];
+                                        copy[idx] = num;
+                                        return copy;
+                                      })
+                                  }
+                                  onBackspace={() =>
+                                      setUserDigits((prev) => {
+                                        const copy = [...prev];
+                                        copy[idx] = null;
+                                        return copy;
+                                      })
+                                  }
+                                  onClear={() =>
+                                      setUserDigits((prev) => {
+                                        const copy = [...prev];
+                                        copy[idx] = null;
+                                        return copy;
+                                      })
+                                  }
+                                  disabled={validated !== null}
+                                  showBack={false}
+                                  selectedNumber={userDigits[idx]}
+                              />
+                            </Box>
+                        ))}
+                  </Box>
+
 
                   <Grid
                       container
@@ -335,7 +365,7 @@ export default function Exercises(): JSX.Element {
                           <Button
                               variant="contained"
                               onClick={checkAnswer}
-                              disabled={!input}
+                              disabled={userDigits.includes(null)}
                               sx={{ minHeight: 48 }}
                               startIcon={<CheckCircleIcon />}
                           >
@@ -399,11 +429,18 @@ export default function Exercises(): JSX.Element {
                     <Typography translate="no" variant="subtitle1">
                       {currentSeries} / {params.series}
                     </Typography>
-                    <Typography mt={2} translate="no" variant="subtitle2" display="flex" alignItems="center" justifyContent="center" gap={1}>
+                    <Typography
+                        mt={2}
+                        translate="no"
+                        variant="subtitle2"
+                        display="flex"
+                        alignItems="center"
+                        justifyContent="center"
+                        gap={1}
+                    >
                       <HourglassEmptyIcon fontSize="small" />
                       {time}s
                     </Typography>
-
                   </Box>
                 </>
             )}
@@ -444,7 +481,9 @@ export default function Exercises(): JSX.Element {
                           </Typography>
 
                           {params.mode === 0 && (
-                              <Typography>Votre réponse: {res.userAnswer}</Typography>
+                              <Typography>
+                                Votre réponse: {res.userAnswer}
+                              </Typography>
                           )}
                           {params.mode === 1 && res.attempts > 1 && (
                               <Typography>{res.attempts - 1} erreur(s)</Typography>
