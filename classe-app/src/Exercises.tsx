@@ -285,19 +285,19 @@ export default function Exercises(): JSX.Element {
             {started && !seriesFinished && exercise && (
                 <>
                   {params.line === 1 ? (
-                      <Typography translate="no" variant="h4" gutterBottom>
+                      <Typography translate="no" variant="h5" gutterBottom>
                         {exercise.a} {operatorSymbol}{" "}
                         {params.hole === 1
-                            ? userDigits.join("") || "?"
+                            ? "?"
                             : exercise.b}{" "}
                         = {params.hole === 1 ? exercise.b : "?"}
                       </Typography>
                   ) : (
                       <Box display="inline-block" textAlign="right" mb={2}>
-                        <Typography variant="h4" translate="no">
+                        <Typography variant="h5" translate="no">
                           {exercise.a}
                         </Typography>
-                        <Typography variant="h4" translate="no">
+                        <Typography variant="h5" translate="no">
                           {operatorSymbol} {exercise.b}
                         </Typography>
                         <Box
@@ -307,7 +307,7 @@ export default function Exercises(): JSX.Element {
                               my: 1,
                             }}
                         />
-                        <Typography variant="h4" translate="no">
+                        <Typography variant="h5" translate="no">
                           {userDigits.join("") || <span>&nbsp;</span>}
                         </Typography>
                       </Box>
@@ -319,8 +319,8 @@ export default function Exercises(): JSX.Element {
                         .split("")
                         .map((_, idx) => (
                             <Box key={idx} display="flex" flexDirection="column" alignItems="center" gap={0}>
-                              <Typography variant="h4">
-                                {userDigits[idx] !== null ? userDigits[idx] : "?"}
+                              <Typography variant="h5" mb={1}>
+                                {userDigits[idx] !== null ? userDigits[idx] : "_"}
                               </Typography>
                               <NumericKeypad
                                   onNumberClick={(num) =>
@@ -355,10 +355,10 @@ export default function Exercises(): JSX.Element {
 
                   <Grid
                       container
-                      spacing={2}
+                      spacing={0}
                       justifyContent="center"
                       alignItems="center"
-                      mt={2}
+                      mt={0}
                   >
                     {validated === null ? (
                         <Grid item>
@@ -388,7 +388,7 @@ export default function Exercises(): JSX.Element {
                   </Grid>
 
                   <Box
-                      mt={3}
+                      mt={1}
                       display="flex"
                       justifyContent="center"
                       gap={2}
